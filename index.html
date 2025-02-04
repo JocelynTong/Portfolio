@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人作品集 | UI/UX Designer</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css">
+    <!-- AOS CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <!--<a class="navbar-brand" href="#">JocelynTong</a>-->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto" id="menu">
+                    <li class="nav-item" style="--item-index: 0;">
+                        <a class="nav-link" href="#home">首页</a>
+                    </li>
+                    <li class="nav-item" style="--item-index: 1;">
+                        <a class="nav-link" href="#works">设计系统 / 资讯</a>
+                    </li>
+                    <li class="nav-item" style="--item-index: 2;">
+                        <a class="nav-link" href="#about">关于我</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- fullPage容器 -->
+    <div id="fullpage">
+        <!-- 欢迎区 -->
+        <div class="section hero-section" data-anchor="home">
+            <div class="hero-content" data-aos="fade-up">
+                <h1 class="display-4 mb-4">Jocelyn's Portfolio</h1>
+                <!--<p class="lead mb-4">UI/UX 设计师 / 产品设计师</p>-->
+                <p class="mb-5">当我们专注于取悦他人时，我们就会停止发表坚定的意见，我们不再拥护新的想法。</p>
+            </div>
+            <div class="scroll-indicator">
+            </div>
+        </div>
+
+        <!-- 作品集展示 -->
+        <div class="section portfolio-section" data-anchor="works">
+            <div class="portfolio-container">
+                <div class="portfolio-header text-center">
+                    <h2 class="text-center mb-5">设计系统 / 设计资讯</h2>
+                </div>
+                <div class="portfolio-grid">
+                    <!-- 项目1 -->
+                    <div class="portfolio-item" data-aos="fade-up">
+                        <div class="portfolio-content">
+                            <div class="portfolio-image">
+                                <img src="imgs/1.png" alt="Figma入门教程">
+                                <div class="portfolio-overlay">
+                                    <div class="overlay-content">
+                                        <span class="project-category">设计技巧</span>
+                                        <h3>8 分钟入门 Figma</h3>
+                                        <a href="https://mp.weixin.qq.com/s/QtXxBOAdU-v5WNoWgCcrlA" class="btn-view-project" target="_blank" rel="noopener noreferrer">查看详情</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 项目2 -->
+                    <div class="portfolio-item" data-aos="fade-up" data-aos-delay="100">
+                        <div class="portfolio-content">
+                            <div class="portfolio-image">
+                                <img src="imgs/2.png" alt="热区规范设计">
+                                <div class="portfolio-overlay">
+                                    <div class="overlay-content">
+                                        <span class="project-category">设计技巧</span>
+                                        <h3>8 分钟搞定热区规范</h3>
+                                        <a href="https://mp.weixin.qq.com/s/weblYOC2IAz-hO5ZsPVfRw" class="btn-view-project" target="_blank" rel="noopener noreferrer">查看详情</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 项目3 -->
+                    <div class="portfolio-item" data-aos="fade-up" data-aos-delay="200">
+                        <div class="portfolio-content">
+                            <div class="portfolio-image">
+                                <img src="imgs/3.png" alt="Figma Config 2024">
+                                <div class="portfolio-overlay">
+                                    <div class="overlay-content">
+                                        <span class="project-category">设计资讯</span>
+                                        <h3>Figma Config 2024</h3>
+                                        <a href="https://mp.weixin.qq.com/s/cw3Cms5IigmP_wbJp9ghYA" class="btn-view-project" target="_blank" rel="noopener noreferrer">查看详情</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 关于我 -->
+        <div class="section about-section" data-anchor="about">
+            <div class="container">
+                <div class="about-content text-center">
+                    <h2 class="text-white mb-4">关于我</h2>
+                    <p class="text-light mb-5">产品设计</p>
+                    
+                    <div class="social-links mb-5">
+                        <a href="https://www.xiaohongshu.com/user/profile/56963a15b8c8b4043acffc08" target="_blank" class="social-link">
+                            <img src="imgs/redbook.svg" class="redbook-icon" alt="小红书">
+                        </a>
+                        <a href="https://v.douyin.com/ifENhYvs/" target="_blank" class="social-link">
+                            <i class="fab fa-tiktok"></i>
+                        </a>
+                        <a href="#" class="social-link" 
+                           data-bs-toggle="popover" 
+                           data-bs-placement="top" 
+                           data-bs-html="true"
+                           data-bs-content='<div class="text-center"><img src="imgs/wechat-qr.jpg" class="qr-code-small" alt="微信二维码"></div>'
+                           data-bs-trigger="hover">
+                            <i class="fab fa-weixin"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- fullPage JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.20/vendors/scrolloverflow.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.20/fullpage.min.js"></script>
+    <!-- Custom JS -->
+    <script src="main.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</body>
+</html> 
