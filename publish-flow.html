@@ -834,6 +834,74 @@ body{
 @keyframes confetti-fall{
   to{transform:translateY(110vh) rotate(720deg);}
 }
+
+/* ── Type Selector ── */
+.type-selector{
+  display:flex;gap:var(--sp-sm);
+  padding:var(--sp-md) var(--sp-md) 0;
+}
+.type-btn{
+  flex:1;padding:10px 0;
+  border-radius:var(--r-md);
+  border:1.5px solid var(--border-1);
+  background:var(--bg-1);
+  font-size:13px;font-weight:500;color:var(--text-2);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  gap:5px;transition:all .2s;
+}
+.type-btn.active{
+  background:var(--primary-light);
+  border-color:var(--primary);
+  color:var(--primary);font-weight:600;
+}
+
+/* ── Async success page ── */
+.result-rows{
+  display:flex;flex-direction:column;gap:10px;
+  width:100%;padding:0 var(--sp-md);margin-bottom:var(--sp-md);
+}
+.result-row{
+  display:flex;align-items:center;gap:12px;
+  background:rgba(255,255,255,0.12);
+  border-radius:var(--r-md);padding:14px var(--sp-md);
+  backdrop-filter:blur(8px);
+  transition:background .4s;
+}
+.result-icon{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.result-icon.done{background:var(--green);}
+.result-icon.pending{background:rgba(255,255,255,0.20);}
+.result-title{font-size:15px;font-weight:600;color:#fff;}
+.result-sub{font-size:12px;color:rgba(255,255,255,0.6);margin-top:2px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cert-spinner{
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;
+  animation:spin .8s linear infinite;
+}
+.cert-card-wrap{
+  width:100%;padding:0 var(--sp-md);
+  opacity:0;transform:translateY(14px);
+  transition:opacity .5s,transform .5s;
+}
+.cert-card-wrap.show{opacity:1;transform:translateY(0);}
+
+/* ── Community publish toast ── */
+.pub-toast{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(.9);
+  background:rgba(20,20,30,0.88);color:#fff;
+  padding:18px 28px;border-radius:var(--r-lg);
+  font-size:16px;font-weight:600;
+  text-align:center;white-space:nowrap;
+  opacity:0;pointer-events:none;
+  backdrop-filter:blur(12px);
+  transition:all .25s;z-index:1000;
+}
+.pub-toast.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
 </style>
 </head>
 <body>
@@ -1143,8 +1211,14 @@ body{
     <div class="nav-btn" onclick="goBack()">
       <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </div>
-    <div class="nav-title">发布作品</div>
+    <div class="nav-title">发布</div>
     <div style="width:36px"></div>
+  </div>
+
+  <!-- 类型选择 -->
+  <div class="type-selector">
+    <div class="type-btn active" id="type-artwork" onclick="selectType('artwork')">🎨 作品发布</div>
+    <div class="type-btn" id="type-community" onclick="selectType('community')">💬 社区帖子</div>
   </div>
 
   <div class="publish-upload">
@@ -1154,7 +1228,7 @@ body{
 
   <div class="publish-form">
     <textarea class="publish-field title" rows="2" placeholder="给作品取个名字…">小精灵·晴天ver.</textarea>
-    <textarea class="publish-field body" placeholder="说点什么…">花了两周画完的小精灵，翅膀的透明感处理了很久，终于满意了 🧚 #原创插画</textarea>
+    <textarea class="publish-field body" id="publish-body" placeholder="说点什么…">花了两周画完的小精灵，翅膀的透明感处理了很久，终于满意了 🧚 #原创插画</textarea>
   </div>
 
   <div class="publish-options">
@@ -1173,236 +1247,16 @@ body{
   </div>
 
   <div class="publish-bottom">
-    <!-- 主发布按钮 → 触发弹窗 -->
-    <button class="btn btn-solid" onclick="showSheet()">发布</button>
+    <button class="btn btn-solid" onclick="doPublish()">发布</button>
     <div class="home-indicator"></div>
   </div>
-
-  <!-- ── SHEET 存证引导弹窗 ── -->
-  <div class="sheet-overlay" id="cert-sheet">
-    <div style="flex:1" onclick="hideSheet()"></div>
-    <div class="sheet">
-      <div class="sheet-handle"></div>
-      <div class="sheet-body">
-        <div class="sheet-hero">
-          <div class="sheet-icon">🔒</div>
-          <div class="sheet-title">顺手给作品上个锁？</div>
-          <div class="sheet-sub">发布同时生成 Token 存证<br>让每一笔原创都有凭有据</div>
-        </div>
-
-        <div class="sheet-props">
-          <div class="sheet-prop">
-            <div class="sheet-prop-icon" style="background:var(--primary-light);">🏛️</div>
-            <div class="sheet-prop-text">
-              <div class="sheet-prop-title">可信时间戳，首发即存证</div>
-              <div class="sheet-prop-desc">自动记录发布时间，不可篡改，证明你是第一个</div>
-            </div>
-          </div>
-          <div class="sheet-prop">
-            <div class="sheet-prop-icon" style="background:var(--green-light);">📦</div>
-            <div class="sheet-prop-text">
-              <div class="sheet-prop-title">一键生成证据包，盗图秒维权</div>
-              <div class="sheet-prop-desc">遇到盗图直接导出 PDF 证据包，投诉小红书/微博</div>
-            </div>
-          </div>
-          <div class="sheet-prop">
-            <div class="sheet-prop-icon" style="background:var(--orange-light);">⚡</div>
-            <div class="sheet-prop-text">
-              <div class="sheet-prop-title">现在存证，只需 30 秒</div>
-              <div class="sheet-prop-desc">信息已从 Post 自动填入，选个授权类型就完成</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="sheet-actions">
-        <button class="btn btn-solid" onclick="hideSheet(); goTo('s-token')">
-          立即存证（30秒）
-        </button>
-        <div class="sheet-skip-hint">
-          跳过后此作品<strong>无维权依据</strong>，被盗用将难以举证
-        </div>
-        <button class="btn btn-ghost" onclick="hideSheet(); skipAndPublish()">跳过，直接发布</button>
-        <div class="home-indicator"></div>
-      </div>
-    </div>
-  </div>
 </div>
 
 
-<!-- ============================================================
-     SCREEN 3 — Token 创建流（3步）
-     ============================================================ -->
-<div class="screen hidden" id="s-token">
-  <div class="nav-bar">
-    <div class="nav-btn" onclick="goBack()">
-      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-    </div>
-    <div class="nav-title">存证</div>
-    <div style="width:36px"></div>
-  </div>
-
-  <!-- Stepper -->
-  <div class="stepper" id="stepper">
-    <div class="step-item">
-      <div class="step-circle active" id="sc1">1</div>
-      <div class="step-label active" id="sl1">确认作品</div>
-    </div>
-    <div class="step-line" id="line1"></div>
-    <div class="step-item">
-      <div class="step-circle" id="sc2">2</div>
-      <div class="step-label" id="sl2">授权设置</div>
-    </div>
-    <div class="step-line" id="line2"></div>
-    <div class="step-item">
-      <div class="step-circle" id="sc3">3</div>
-      <div class="step-label" id="sl3">确认存证</div>
-    </div>
-  </div>
-
-  <!-- STEP 1 -->
-  <div class="step-panel active" id="sp1">
-    <div class="step-section-title">Step 1 / 3</div>
-    <div class="step-h2">确认作品信息</div>
-    <div class="step-desc">以下信息从你的 Post 自动读取，可以修改。</div>
-
-    <div class="artwork-confirm">
-      <div class="artwork-preview">🧚</div>
-      <div class="artwork-meta">
-        <div class="artwork-meta-row">
-          <div class="artwork-meta-label">作品名称</div>
-          <div class="artwork-meta-val edit">小精灵·晴天ver. ✎</div>
-        </div>
-        <div class="artwork-meta-row">
-          <div class="artwork-meta-label">作品类型</div>
-          <div class="artwork-meta-val">原创插画</div>
-        </div>
-        <div class="artwork-meta-row">
-          <div class="artwork-meta-label">创作者</div>
-          <div class="artwork-meta-val">@MoriSky（你）</div>
-        </div>
-        <div class="artwork-meta-row">
-          <div class="artwork-meta-label">存证时间</div>
-          <div class="artwork-meta-val" style="color:var(--green);">2024-03-15 · 自动记录</div>
-        </div>
-      </div>
-    </div>
-
-    <button class="btn btn-solid" onclick="toStep(2)">信息无误，下一步 →</button>
-  </div>
-
-  <!-- STEP 2 -->
-  <div class="step-panel" id="sp2">
-    <div class="step-section-title">Step 2 / 3</div>
-    <div class="step-h2">选择授权类型</div>
-    <div class="step-desc">决定别人可以怎样使用你的作品。</div>
-
-    <div class="license-grid">
-      <div class="license-card" onclick="selectLicense(this)">
-        <div class="license-card-icon">🔒</div>
-        <div class="license-card-info">
-          <div class="license-card-name">仅自用</div>
-          <div class="license-card-desc">任何人不得以任何形式使用，仅作存证留档</div>
-        </div>
-        <div class="license-card-radio"></div>
-      </div>
-      <div class="license-card selected" onclick="selectLicense(this)">
-        <div class="license-card-icon">🎁</div>
-        <div class="license-card-info">
-          <div class="license-card-name">无料授权</div>
-          <div class="license-card-desc">允许非商业转载，需注明作者和来源</div>
-        </div>
-        <div class="license-card-radio"></div>
-      </div>
-      <div class="license-card" onclick="selectLicense(this)">
-        <div class="license-card-icon">💼</div>
-        <div class="license-card-info">
-          <div class="license-card-name">商业授权</div>
-          <div class="license-card-desc">允许购买后用于商业用途，支持设置售价</div>
-        </div>
-        <div class="license-card-radio"></div>
-      </div>
-      <div class="license-card" onclick="selectLicense(this)">
-        <div class="license-card-icon">🏆</div>
-        <div class="license-card-info">
-          <div class="license-card-name">买断授权</div>
-          <div class="license-card-desc">购买者获得完整使用权，含二次创作</div>
-        </div>
-        <div class="license-card-radio"></div>
-      </div>
-    </div>
-
-    <button class="btn btn-solid" onclick="toStep(3)">已选好，下一步 →</button>
-  </div>
-
-  <!-- STEP 3 -->
-  <div class="step-panel" id="sp3">
-    <div class="step-section-title">Step 3 / 3</div>
-    <div class="step-h2">确认存证</div>
-    <div class="step-desc">存证后信息不可篡改，请确认无误。</div>
-
-    <div class="confirm-summary">
-      <div class="confirm-row">
-        <div class="confirm-label">作品名称</div>
-        <div class="confirm-val">小精灵·晴天ver.</div>
-      </div>
-      <div class="confirm-row">
-        <div class="confirm-label">创作者</div>
-        <div class="confirm-val">@MoriSky</div>
-      </div>
-      <div class="confirm-row">
-        <div class="confirm-label">授权类型</div>
-        <div class="confirm-val primary">无料授权</div>
-      </div>
-      <div class="confirm-row">
-        <div class="confirm-label">存证方式</div>
-        <div class="confirm-val green">✓ 临界可信时间戳</div>
-      </div>
-      <div class="confirm-row">
-        <div class="confirm-label">存证费用</div>
-        <div class="confirm-val green">✓ 免费</div>
-      </div>
-    </div>
-
-    <div class="security-note">
-      <div class="security-note-icon">🔒</div>
-      <div class="security-note-text">
-        确认后将生成唯一存证编号，记录首发时间戳。此操作<strong>不可撤销</strong>，请确认信息无误。
-      </div>
-    </div>
-
-    <button class="btn btn-solid" id="confirm-btn" onclick="startUpload()">确认存证，发布作品</button>
-  </div>
-
-  <!-- Loading overlay -->
-  <div class="upload-loading" id="upload-loading">
-    <div class="loading-circle"></div>
-    <div class="loading-title">正在存证…</div>
-    <div class="loading-desc">请稍等，正在为你的作品<br>生成可信时间戳存证</div>
-    <div class="loading-steps">
-      <div class="loading-step done">
-        <div class="loading-step-dot"></div>
-        Post 发布成功
-      </div>
-      <div class="loading-step done">
-        <div class="loading-step-dot"></div>
-        生成存证编号
-      </div>
-      <div class="loading-step active" id="ls-current">
-        <div class="loading-step-dot"></div>
-        写入可信时间戳…
-      </div>
-      <div class="loading-step" id="ls-next">
-        <div class="loading-step-dot"></div>
-        生成存证证书
-      </div>
-    </div>
-  </div>
-</div>
-
+<!-- SCREEN 3 removed — cert is now async, no manual steps needed -->
 
 <!-- ============================================================
-     SCREEN 4 — 存证成功庆祝页
+     SCREEN 4 — 发布完成（帖子已发 + 后台存证）
      ============================================================ -->
 <div class="screen hidden" id="s-success">
   <div class="success-bg">
@@ -1411,68 +1265,89 @@ body{
     <div class="orb" style="width:60px;height:60px;top:100px;left:60px;animation-delay:2s"></div>
   </div>
 
-  <div class="success-content">
-    <div class="success-tick">
-      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  <div class="nav-bar" style="background:transparent;border-bottom:none;">
+    <div style="width:36px"></div>
+    <div class="nav-title" style="color:rgba(255,255,255,0.9);">发布完成</div>
+    <div style="width:36px"></div>
+  </div>
+
+  <div class="success-content" style="padding-top:32px;">
+
+    <!-- 双结果行 -->
+    <div class="result-rows">
+      <div class="result-row">
+        <div class="result-icon done">
+          <svg viewBox="0 0 20 20" style="width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;"><polyline points="4,10 8,14 16,6"/></svg>
+        </div>
+        <div>
+          <div class="result-title">帖子已发布</div>
+          <div class="result-sub">已出现在你的主页和关注者动态</div>
+        </div>
+      </div>
+
+      <div class="result-row" id="row-cert">
+        <div class="result-icon pending" id="cert-icon">
+          <div class="cert-spinner"></div>
+        </div>
+        <div>
+          <div class="result-title" id="cert-title">存证处理中…</div>
+          <div class="result-sub" id="cert-sub">正在写入可信时间戳</div>
+        </div>
+      </div>
     </div>
-    <div class="success-title">存证成功 💙</div>
-    <div class="success-sub">你的作品已安全存证，首发权属永久留存</div>
 
-    <!-- Certificate -->
-    <div class="cert-card">
-      <div class="cert-top-strip"></div>
-      <div class="cert-inner">
-        <div class="cert-header">
-          <div class="cert-logo">🏛️</div>
-          <div class="cert-header-text">
-            <div class="cert-header-title">临界存证证书</div>
-            <div class="cert-header-sub">临界认证 · LINJI</div>
+    <!-- 存证证书（存证完成后淡入） -->
+    <div class="cert-card-wrap" id="cert-card-reveal">
+      <div class="cert-card">
+        <div class="cert-top-strip"></div>
+        <div class="cert-inner">
+          <div class="cert-header">
+            <div class="cert-logo">🏛️</div>
+            <div class="cert-header-text">
+              <div class="cert-header-title">临界存证证书</div>
+              <div class="cert-header-sub">临界认证 · LINJI</div>
+            </div>
+            <div class="cert-valid"><div class="cert-valid-dot"></div>有效</div>
           </div>
-          <div class="cert-valid">
-            <div class="cert-valid-dot"></div>有效
+          <div class="cert-artwork-row">
+            <div class="cert-artwork-thumb">🧚</div>
+            <div class="cert-artwork-info">
+              <div class="cert-artwork-title">小精灵·晴天ver.</div>
+              <div class="cert-artwork-creator">by @MoriSky</div>
+              <div class="cert-license-tag">🎁 无料授权</div>
+            </div>
           </div>
-        </div>
-
-        <div class="cert-artwork-row">
-          <div class="cert-artwork-thumb">🧚</div>
-          <div class="cert-artwork-info">
-            <div class="cert-artwork-title">小精灵·晴天ver.</div>
-            <div class="cert-artwork-creator">by @MoriSky</div>
-            <div class="cert-license-tag">🎁 无料授权</div>
-          </div>
-        </div>
-
-        <div class="cert-fields">
-          <div class="cert-field-row">
-            <div class="cert-field-label">存证编号</div>
-            <div class="cert-field-val">LJ-2024-0315-7C66</div>
-          </div>
-          <div class="cert-field-row">
-            <div class="cert-field-label">首发时间</div>
-            <div class="cert-field-val large">2024-03-15 · 14:32 CST</div>
-          </div>
-          <div class="cert-field-row">
-            <div class="cert-field-label">存证方式</div>
-            <div class="cert-field-val large">临界可信时间戳</div>
+          <div class="cert-fields">
+            <div class="cert-field-row">
+              <div class="cert-field-label">存证编号</div>
+              <div class="cert-field-val">LJ-2024-0315-7C66</div>
+            </div>
+            <div class="cert-field-row">
+              <div class="cert-field-label">首发时间</div>
+              <div class="cert-field-val large">2024-03-15 · 14:32 CST</div>
+            </div>
+            <div class="cert-field-row">
+              <div class="cert-field-label">存证方式</div>
+              <div class="cert-field-val large">临界可信时间戳</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Actions -->
-    <div class="success-actions">
-      <a class="btn btn-solid" href="token-detail.html" style="text-decoration:none;">查看存证详情</a>
-      <button class="btn btn-outline" onclick="shareSuccess()">
-        <svg style="width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="19" r="2"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-        分享证书
-      </button>
+    <!-- 按钮（存证完成后渐显） -->
+    <div class="success-actions" id="success-actions" style="opacity:0;pointer-events:none;transition:opacity .4s;">
+      <a class="btn btn-solid" href="token-detail.html" onclick="location.href='token-detail.html';return false;" style="text-decoration:none;background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.4);color:#fff;">查看存证证书</a>
+      <button class="btn btn-outline" onclick="location.href='publish-flow.html'" style="border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.75);">返回主页</button>
     </div>
     <div style="height:40px"></div>
   </div>
 </div>
-
-<!-- Confetti container -->
+<!-- Confetti container (kept for structure) -->
 <div class="confetti-wrap" id="confetti-wrap"></div>
+
+<!-- Community publish toast -->
+<div class="pub-toast" id="pub-toast"></div>
 
 <script>
 /* ── Profile tab switching ── */
@@ -1490,7 +1365,6 @@ function goTo(id) {
   const cur = document.querySelector('.screen.active');
   const next = document.getElementById(id);
   if (!cur || !next || cur === next) return;
-
   cur.classList.remove('active');
   cur.classList.add('hidden-left');
   next.classList.remove('hidden');
@@ -1506,115 +1380,59 @@ function goBack() {
   const cur = document.querySelector('.screen.active');
   const prev = document.getElementById(prevId);
   if (!cur || !prev) return;
-
   cur.classList.remove('active');
   cur.classList.add('hidden');
   prev.classList.remove('hidden-left');
   prev.classList.add('active');
 }
 
-/* ── Sheet ── */
-function showSheet() {
-  document.getElementById('cert-sheet').classList.add('show');
-}
-function hideSheet() {
-  document.getElementById('cert-sheet').classList.remove('show');
-}
-function skipAndPublish() {
-  alert('已跳过存证，Post 直接发布。\n\n（无 Token 保护状态）');
-  goBack();
-}
+/* ── Publish type selector ── */
+let publishType = 'artwork';
 
-/* ── License selection ── */
-function selectLicense(card) {
-  document.querySelectorAll('.license-card').forEach(c => c.classList.remove('selected'));
-  card.classList.add('selected');
+function selectType(type) {
+  publishType = type;
+  document.getElementById('type-artwork').classList.toggle('active', type === 'artwork');
+  document.getElementById('type-community').classList.toggle('active', type === 'community');
+  const body = document.getElementById('publish-body');
+  body.placeholder = type === 'community' ? '分享你的想法、问题或故事…' : '说点什么…';
 }
 
-/* ── Stepper ── */
-let currentStep = 1;
-
-function toStep(n) {
-  // Hide current panel
-  document.getElementById('sp' + currentStep).classList.remove('active');
-
-  // Mark step as done
-  const sc = document.getElementById('sc' + currentStep);
-  sc.classList.remove('active');
-  sc.classList.add('done');
-  sc.innerHTML = '<svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>';
-
-  // Mark connecting line as done
-  if (currentStep < 3) {
-    document.getElementById('line' + currentStep).classList.add('done');
-  }
-
-  // Activate next step
-  currentStep = n;
-  const scNew = document.getElementById('sc' + n);
-  scNew.classList.add('active');
-  scNew.textContent = n;
-  const slNew = document.getElementById('sl' + n);
-  slNew.classList.add('active');
-
-  // Show next panel
-  document.getElementById('sp' + n).classList.add('active');
-  document.getElementById('s-token').scrollTop = 0;
-}
-
-/* ── Upload animation ── */
-function startUpload() {
-  // Hide step panel, show loading
-  document.getElementById('sp3').style.display = 'none';
-  const loading = document.getElementById('upload-loading');
-  loading.classList.add('show');
-  document.getElementById('s-token').scrollTop = 0;
-
-  // Step progress
-  setTimeout(() => {
-    document.getElementById('ls-current').className = 'loading-step done';
-    document.getElementById('ls-current').innerHTML = '<div class="loading-step-dot"></div>写入可信时间戳';
-    document.getElementById('ls-next').className = 'loading-step active';
-    document.getElementById('ls-next').innerHTML = '<div class="loading-step-dot"></div>生成证书编号…';
-  }, 1200);
-
-  setTimeout(() => {
-    document.getElementById('ls-next').className = 'loading-step done';
-    document.getElementById('ls-next').innerHTML = '<div class="loading-step-dot"></div>生成证书编号';
-  }, 2200);
-
-  setTimeout(() => {
-    loading.classList.remove('show');
+/* ── Publish ── */
+function doPublish() {
+  if (publishType === 'community') {
+    // 社区帖子：直接发布，toast 反馈，返回主页
+    const toast = document.getElementById('pub-toast');
+    toast.textContent = '帖子发布成功 ✓';
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => goBack(), 260);
+    }, 1600);
+  } else {
+    // 作品发布：进成功页，后台异步存证
     goTo('s-success');
-    launchConfetti();
-  }, 2800);
-}
-
-/* ── Confetti ── */
-function launchConfetti() {
-  const wrap = document.getElementById('confetti-wrap');
-  wrap.innerHTML = '';
-  const colors = ['#7c66ff','#a594ff','#34c47c','#ffcc44','#ff8c42','#fff'];
-  for (let i = 0; i < 60; i++) {
-    const el = document.createElement('div');
-    el.className = 'confetto';
-    el.style.cssText = `
-      left:${Math.random()*100}%;
-      background:${colors[Math.floor(Math.random()*colors.length)]};
-      width:${6+Math.random()*6}px;
-      height:${6+Math.random()*6}px;
-      border-radius:${Math.random()>0.5?'50%':'2px'};
-      animation-duration:${1.5+Math.random()*1.5}s;
-      animation-delay:${Math.random()*.6}s;
-    `;
-    wrap.appendChild(el);
+    setTimeout(startAsyncCert, 400);
   }
-  setTimeout(() => { wrap.innerHTML = ''; }, 3500);
 }
 
-/* ── Share ── */
-function shareSuccess() {
-  alert('分享证书 →\n\n「我的作品《小精灵·晴天ver.》已在临界完成区块链存证\n存证编号：LJ-2024-0315-7C66\n愿天下无盗设 · 发布即存证 💙」');
+/* ── Async cert animation ── */
+function startAsyncCert() {
+  setTimeout(() => {
+    // 存证完成
+    const icon = document.getElementById('cert-icon');
+    icon.className = 'result-icon done';
+    icon.innerHTML = '<svg viewBox="0 0 20 20" style="width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;"><polyline points="4,10 8,14 16,6"/></svg>';
+
+    document.getElementById('cert-title').textContent = '作品已存证 💙';
+    document.getElementById('cert-sub').textContent = '可信时间戳写入，首发权属永久留存';
+    document.getElementById('row-cert').style.background = 'rgba(52,196,124,0.22)';
+
+    // 淡入证书卡片和按钮
+    document.getElementById('cert-card-reveal').classList.add('show');
+    const actions = document.getElementById('success-actions');
+    actions.style.opacity = '1';
+    actions.style.pointerEvents = 'auto';
+  }, 1800);
 }
 </script>
 </body>
