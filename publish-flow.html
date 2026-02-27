@@ -235,6 +235,144 @@ body{
 .fab svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 
 /* ============================================================
+   Profile Tab panels
+   ============================================================ */
+.tab-panels { background: var(--bg-1); }
+.tab-panel-content { display:none; }
+.tab-panel-content.active { display:block; }
+
+/* ── Token Tab ── */
+.token-list {
+  display:flex;flex-direction:column;
+  padding:var(--sp-sm) var(--sp-md);
+  gap:var(--sp-sm);
+}
+.token-card {
+  border:0.5px solid var(--border-1);
+  border-radius:var(--r-lg);
+  overflow:hidden;
+  background:var(--bg-1);
+  cursor:pointer;
+  transition:box-shadow .2s,transform .15s;
+}
+.token-card:active{transform:scale(.98);}
+.token-card:hover{box-shadow:0 4px 20px rgba(124,102,255,.10);}
+.token-card-strip{
+  height:3px;
+  background:linear-gradient(90deg,#7c66ff 0%,#a594ff 50%,#7c66ff 100%);
+}
+.token-card-inner{
+  display:flex;align-items:center;gap:var(--sp-sm);
+  padding:var(--sp-sm) var(--sp-md);
+}
+.token-thumb{
+  width:56px;height:56px;flex-shrink:0;
+  border-radius:var(--r-md);
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;position:relative;
+}
+.token-thumb-shield{
+  position:absolute;bottom:-4px;right:-4px;
+  width:18px;height:18px;border-radius:50%;
+  background:var(--green);border:2px solid var(--bg-1);
+  display:flex;align-items:center;justify-content:center;
+}
+.token-thumb-shield svg{width:9px;height:9px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+.token-info{flex:1;min-width:0;}
+.token-name{font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.token-cert-no{font-size:10px;color:var(--text-3);font-family:'SF Mono','Menlo',monospace;margin-bottom:5px;}
+.token-tags{display:flex;gap:var(--sp-xs);flex-wrap:wrap;}
+.token-tag{font-size:10px;font-weight:500;border-radius:var(--r-pill);padding:2px 8px;}
+.token-tag.cert{background:var(--green-light);color:var(--green);}
+.token-tag.license{background:var(--primary-light);color:var(--primary);}
+.token-tag.warn{background:var(--orange-light);color:var(--orange);}
+.token-arrow{
+  width:28px;height:28px;flex-shrink:0;
+  background:var(--bg-2);border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.token-arrow svg{width:14px;height:14px;fill:none;stroke:var(--text-3);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.token-card-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px var(--sp-md);
+  border-top:0.5px solid var(--border-3);
+  background:var(--bg-2);
+}
+.token-stat{display:flex;align-items:center;gap:3px;font-size:11px;color:var(--text-3);}
+.token-stat svg{width:12px;height:12px;fill:none;stroke:var(--text-3);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.token-stats-row{display:flex;gap:var(--sp-md);}
+.token-date{font-size:11px;color:var(--text-3);}
+
+/* Token empty state */
+.token-empty{
+  display:flex;flex-direction:column;align-items:center;
+  padding:var(--sp-xl) var(--sp-md);text-align:center;
+}
+.token-empty-icon{font-size:48px;margin-bottom:var(--sp-md);}
+.token-empty-title{font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:var(--sp-xs);}
+.token-empty-desc{font-size:13px;color:var(--text-3);line-height:1.6;margin-bottom:var(--sp-md);}
+
+/* ── 挂单 Tab ── */
+.listing-list{
+  display:flex;flex-direction:column;
+  padding:var(--sp-sm) var(--sp-md);
+  gap:var(--sp-sm);
+}
+.listing-card{
+  border:0.5px solid var(--border-1);
+  border-radius:var(--r-lg);
+  overflow:hidden;background:var(--bg-1);
+}
+.listing-card-inner{
+  display:flex;gap:var(--sp-sm);
+  padding:var(--sp-sm) var(--sp-md);
+  align-items:center;
+}
+.listing-thumb{
+  width:52px;height:52px;flex-shrink:0;
+  border-radius:var(--r-md);
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+}
+.listing-info{flex:1;min-width:0;}
+.listing-name{font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.listing-meta{font-size:12px;color:var(--text-3);margin-bottom:4px;}
+.listing-price{font-size:20px;font-weight:700;color:var(--primary);letter-spacing:-.5px;}
+.listing-price small{font-size:12px;font-weight:400;color:var(--text-3);}
+.listing-status{
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:10px;font-weight:500;
+  border-radius:var(--r-pill);padding:2px 8px;
+  flex-shrink:0;
+}
+.listing-status.active{background:var(--green-light);color:var(--green);}
+.listing-status.inquiry{background:var(--orange-light);color:var(--orange);}
+.listing-status-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+.listing-card-footer{
+  display:flex;gap:var(--sp-sm);
+  padding:var(--sp-sm) var(--sp-md);
+  border-top:0.5px solid var(--border-3);
+}
+.listing-action{
+  flex:1;padding:7px;text-align:center;
+  font-size:13px;font-weight:500;
+  border-radius:var(--r-sm);cursor:pointer;
+  border:0.5px solid var(--border-1);color:var(--text-2);
+  background:var(--bg-2);
+}
+.listing-action.danger{color:var(--red);border-color:rgba(255,77,106,.2);background:var(--red-light);}
+
+/* 挂单 empty hint */
+.listing-hint{
+  margin:var(--sp-sm) var(--sp-md) 0;
+  background:var(--primary-light);
+  border:0.5px solid var(--primary-border);
+  border-radius:var(--r-md);
+  padding:var(--sp-sm) var(--sp-md);
+  font-size:12px;color:var(--text-2);line-height:1.6;
+}
+.listing-hint strong{color:var(--primary);}
+
+/* ============================================================
    SCREEN 2 — Post 发布页
    ============================================================ */
 #s-publish{background:var(--bg-1);}
@@ -703,49 +841,255 @@ body{
     <div class="protect-banner-btn">补存证</div>
   </div>
 
-  <div class="profile-tabs">
-    <div class="profile-tab active">作品</div>
-    <div class="profile-tab">Token</div>
-    <div class="profile-tab">喜欢</div>
+  <div class="profile-tabs" id="profile-tabs">
+    <div class="profile-tab active" onclick="switchProfileTab(0)">帖子</div>
+    <div class="profile-tab" onclick="switchProfileTab(1)">Token</div>
+    <div class="profile-tab" onclick="switchProfileTab(2)">挂单</div>
   </div>
 
-  <div class="post-grid">
-    <!-- 已存证 -->
-    <div class="post-cell" style="background:linear-gradient(145deg,#2a1f6e,#7c66ff);">
-      🧚
-      <div class="cell-badge protected">
-        <svg viewBox="0 0 12 12"><path d="M6 11s4-2 4-5V2.5L6 1 2 2.5V6c0 3 4 5 4 5z"/></svg>
-        已存证
+  <div class="tab-panels">
+
+    <!-- ── 帖子 Tab ── -->
+    <div class="tab-panel-content active" id="tab-posts">
+      <div class="post-grid">
+        <div class="post-cell" style="background:linear-gradient(145deg,#2a1f6e,#7c66ff);">
+          🧚
+          <div class="cell-badge protected">
+            <svg viewBox="0 0 12 12"><path d="M6 11s4-2 4-5V2.5L6 1 2 2.5V6c0 3 4 5 4 5z"/></svg>
+            已存证
+          </div>
+        </div>
+        <div class="post-cell" style="background:linear-gradient(145deg,#1e3a5f,#4477cc);">
+          🌙
+          <div class="cell-badge unprotected">⚠️ 未保护</div>
+        </div>
+        <div class="post-cell" style="background:linear-gradient(145deg,#3d1a4e,#9944cc);">
+          🦋
+          <div class="cell-badge protected">
+            <svg viewBox="0 0 12 12"><path d="M6 11s4-2 4-5V2.5L6 1 2 2.5V6c0 3 4 5 4 5z"/></svg>
+            已存证
+          </div>
+        </div>
+        <div class="post-cell" style="background:linear-gradient(145deg,#1a3a2e,#2d8a6e);">
+          🌿
+          <div class="cell-badge unprotected">⚠️ 未保护</div>
+        </div>
+        <div class="post-cell" style="background:linear-gradient(145deg,#3a1a1a,#cc4444);">
+          🔮
+          <div class="cell-badge unprotected">⚠️ 未保护</div>
+        </div>
+        <div class="post-cell" style="background:linear-gradient(145deg,#1a2a3a,#447799);">
+          ⭐
+          <div class="cell-badge protected">
+            <svg viewBox="0 0 12 12"><path d="M6 11s4-2 4-5V2.5L6 1 2 2.5V6c0 3 4 5 4 5z"/></svg>
+            已存证
+          </div>
+        </div>
+        <div class="post-cell" style="background:linear-gradient(145deg,#2e1a0e,#c06020);">
+          🌸
+          <div class="cell-badge unprotected">⚠️ 未保护</div>
+        </div>
+        <div class="post-cell" style="background:linear-gradient(145deg,#0e2e1a,#20a060);">
+          🐉
+          <div class="cell-badge protected">
+            <svg viewBox="0 0 12 12"><path d="M6 11s4-2 4-5V2.5L6 1 2 2.5V6c0 3 4 5 4 5z"/></svg>
+            已存证
+          </div>
+        </div>
       </div>
     </div>
-    <!-- 未存证 -->
-    <div class="post-cell" style="background:linear-gradient(145deg,#1e3a5f,#4477cc);">
-      🌙
-      <div class="cell-badge unprotected">⚠️ 未保护</div>
-    </div>
-    <div class="post-cell" style="background:linear-gradient(145deg,#3d1a4e,#9944cc);">
-      🦋
-      <div class="cell-badge protected">
-        <svg viewBox="0 0 12 12"><path d="M6 11s4-2 4-5V2.5L6 1 2 2.5V6c0 3 4 5 4 5z"/></svg>
-        已存证
+
+    <!-- ── Token Tab ── -->
+    <div class="tab-panel-content" id="tab-token">
+      <div class="token-list">
+
+        <!-- Token 1 — 已存证 商用授权 挂单中 -->
+        <div class="token-card">
+          <div class="token-card-strip"></div>
+          <div class="token-card-inner">
+            <div class="token-thumb" style="background:linear-gradient(145deg,#2a1f6e,#7c66ff);">
+              🧚
+              <div class="token-thumb-shield">
+                <svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
+              </div>
+            </div>
+            <div class="token-info">
+              <div class="token-name">小精灵·晴天ver.</div>
+              <div class="token-cert-no">#LJ-2024-0315-7C66</div>
+              <div class="token-tags">
+                <span class="token-tag cert">✓ 已存证</span>
+                <span class="token-tag license">💼 商用授权</span>
+                <span class="token-tag warn">🏷 挂单中</span>
+              </div>
+            </div>
+            <div class="token-arrow">
+              <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+          <div class="token-card-footer">
+            <div class="token-stats-row">
+              <div class="token-stat">
+                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                1.2k 浏览
+              </div>
+              <div class="token-stat">
+                <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                8 引用
+              </div>
+            </div>
+            <div class="token-date">2024-03-15</div>
+          </div>
+        </div>
+
+        <!-- Token 2 — 已存证 无料 -->
+        <div class="token-card">
+          <div class="token-card-strip"></div>
+          <div class="token-card-inner">
+            <div class="token-thumb" style="background:linear-gradient(145deg,#3d1a4e,#9944cc);">
+              🦋
+              <div class="token-thumb-shield">
+                <svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
+              </div>
+            </div>
+            <div class="token-info">
+              <div class="token-name">蝶·夏至</div>
+              <div class="token-cert-no">#LJ-2024-0620-9C44</div>
+              <div class="token-tags">
+                <span class="token-tag cert">✓ 已存证</span>
+                <span class="token-tag license">🎁 无料授权</span>
+              </div>
+            </div>
+            <div class="token-arrow">
+              <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+          <div class="token-card-footer">
+            <div class="token-stats-row">
+              <div class="token-stat">
+                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                876 浏览
+              </div>
+              <div class="token-stat">
+                <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                3 引用
+              </div>
+            </div>
+            <div class="token-date">2024-06-20</div>
+          </div>
+        </div>
+
+        <!-- Token 3 — 已存证 买断 -->
+        <div class="token-card">
+          <div class="token-card-strip"></div>
+          <div class="token-card-inner">
+            <div class="token-thumb" style="background:linear-gradient(145deg,#0e2e1a,#20a060);">
+              🐉
+              <div class="token-thumb-shield">
+                <svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
+              </div>
+            </div>
+            <div class="token-info">
+              <div class="token-name">神龙·岁末</div>
+              <div class="token-cert-no">#LJ-2024-1228-20A0</div>
+              <div class="token-tags">
+                <span class="token-tag cert">✓ 已存证</span>
+                <span class="token-tag license">🏆 买断授权</span>
+              </div>
+            </div>
+            <div class="token-arrow">
+              <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+          <div class="token-card-footer">
+            <div class="token-stats-row">
+              <div class="token-stat">
+                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                2.4k 浏览
+              </div>
+              <div class="token-stat">
+                <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                12 引用
+              </div>
+            </div>
+            <div class="token-date">2024-12-28</div>
+          </div>
+        </div>
+
+        <!-- CTA: 尚未存证的帖子 -->
+        <div style="background:var(--orange-light);border:0.5px solid rgba(255,140,66,.28);border-radius:var(--r-md);padding:var(--sp-md);display:flex;align-items:center;gap:var(--sp-sm);">
+          <div style="font-size:24px;flex-shrink:0;">⚠️</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;color:var(--orange);margin-bottom:2px;">还有 9 个帖子未存证</div>
+            <div style="font-size:12px;color:var(--text-3);line-height:1.5;">未存证作品被盗用将无法提供维权依据</div>
+          </div>
+          <div style="font-size:12px;font-weight:500;color:var(--orange);background:rgba(255,140,66,.15);border-radius:var(--r-pill);padding:5px 12px;flex-shrink:0;cursor:pointer;">去存证</div>
+        </div>
+
       </div>
     </div>
-    <div class="post-cell" style="background:linear-gradient(145deg,#1a3a2e,#2d8a6e);">
-      🌿
-      <div class="cell-badge unprotected">⚠️ 未保护</div>
-    </div>
-    <div class="post-cell" style="background:linear-gradient(145deg,#3a1a1a,#cc4444);">
-      🔮
-      <div class="cell-badge unprotected">⚠️ 未保护</div>
-    </div>
-    <div class="post-cell" style="background:linear-gradient(145deg,#1a2a3a,#447799);">
-      ⭐
-      <div class="cell-badge protected">
-        <svg viewBox="0 0 12 12"><path d="M6 11s4-2 4-5V2.5L6 1 2 2.5V6c0 3 4 5 4 5z"/></svg>
-        已存证
+
+    <!-- ── 挂单 Tab ── -->
+    <div class="tab-panel-content" id="tab-listing">
+
+      <div class="listing-hint">
+        <strong>💙 挂单</strong>是将你的 Token 授权或转让权以定价形式对外开放。买家可按授权类型付费获得使用权，转让成功后你保留创作者署名权。
+      </div>
+
+      <div class="listing-list">
+
+        <!-- 挂单 1 — 有询价 -->
+        <div class="listing-card">
+          <div class="listing-card-inner">
+            <div class="listing-thumb" style="background:linear-gradient(145deg,#2a1f6e,#7c66ff);">🧚</div>
+            <div class="listing-info">
+              <div class="listing-name">小精灵·晴天ver.</div>
+              <div class="listing-meta">商用授权 · 挂单 12天</div>
+              <div class="listing-price">¥ 299 <small>/ 商用</small></div>
+            </div>
+            <div class="listing-status inquiry">
+              <div class="listing-status-dot"></div>
+              询价 ×2
+            </div>
+          </div>
+          <div class="listing-card-footer">
+            <div class="listing-action" onclick="alert('查看 2 条询价消息')">查看询价</div>
+            <div class="listing-action" onclick="alert('修改价格')">改价格</div>
+            <div class="listing-action danger" onclick="alert('确认下架？')">下架</div>
+          </div>
+        </div>
+
+        <!-- 挂单 2 — 待售 -->
+        <div class="listing-card">
+          <div class="listing-card-inner">
+            <div class="listing-thumb" style="background:linear-gradient(145deg,#1a2a3a,#447799);">⭐</div>
+            <div class="listing-info">
+              <div class="listing-name">星野·冬夜</div>
+              <div class="listing-meta">买断授权 · 挂单 3天</div>
+              <div class="listing-price">¥ 1,200 <small>/ 买断</small></div>
+            </div>
+            <div class="listing-status active">
+              <div class="listing-status-dot"></div>
+              挂单中
+            </div>
+          </div>
+          <div class="listing-card-footer">
+            <div class="listing-action" onclick="alert('推广这个 Token')">推广</div>
+            <div class="listing-action" onclick="alert('修改价格')">改价格</div>
+            <div class="listing-action danger" onclick="alert('确认下架？')">下架</div>
+          </div>
+        </div>
+
+        <!-- 新增挂单 CTA -->
+        <div style="border:1.5px dashed var(--primary-border);border-radius:var(--r-lg);padding:var(--sp-lg) var(--sp-md);display:flex;flex-direction:column;align-items:center;gap:var(--sp-sm);cursor:pointer;" onclick="alert('选择一个 Token 创建挂单')">
+          <div style="width:40px;height:40px;background:var(--primary-light);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:20px;">➕</div>
+          <div style="font-size:14px;font-weight:600;color:var(--primary);">挂单新 Token</div>
+          <div style="font-size:12px;color:var(--text-3);text-align:center;line-height:1.5;">从你的已存证 Token 中选择，<br>设定授权类型和价格</div>
+        </div>
+
       </div>
     </div>
-  </div>
+
+  </div><!-- /tab-panels -->
 
   <div style="height:80px"></div>
 
@@ -1096,6 +1440,14 @@ body{
 <div class="confetti-wrap" id="confetti-wrap"></div>
 
 <script>
+/* ── Profile tab switching ── */
+function switchProfileTab(idx) {
+  document.querySelectorAll('#profile-tabs .profile-tab')
+    .forEach((t,i) => t.classList.toggle('active', i===idx));
+  document.querySelectorAll('.tab-panel-content')
+    .forEach((p,i) => p.classList.toggle('active', i===idx));
+}
+
 /* ── Screen navigation ── */
 const history = [];
 
