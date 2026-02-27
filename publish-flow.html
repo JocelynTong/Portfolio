@@ -372,6 +372,39 @@ body{
 }
 .listing-hint strong{color:var(--primary);}
 
+/* 挂单双列网格 */
+.listing-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:var(--sp-sm);
+  padding:var(--sp-sm) var(--sp-md) var(--sp-md);
+}
+.lg-card{
+  border-radius:var(--r-lg);overflow:hidden;
+  background:var(--bg-1);
+  border:0.5px solid var(--border-1);
+  cursor:pointer;
+  transition:transform .15s,box-shadow .2s;
+}
+.lg-card:active{transform:scale(.97);}
+.lg-card:hover{box-shadow:0 4px 20px rgba(124,102,255,.10);}
+.lg-thumb{
+  width:100%;aspect-ratio:1/1;
+  display:flex;align-items:center;justify-content:center;
+  font-size:52px;position:relative;
+}
+.lg-cert-dot{
+  position:absolute;top:8px;right:8px;
+  width:10px;height:10px;border-radius:50%;
+  background:var(--green);
+  border:2px solid rgba(255,255,255,.5);
+  box-shadow:0 0 0 2px rgba(52,196,124,.25);
+}
+.lg-body{padding:var(--sp-sm);}
+.lg-name{font-size:13px;font-weight:600;color:var(--text-1);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lg-license{font-size:10px;color:var(--text-3);margin-bottom:4px;}
+.lg-price{font-size:16px;font-weight:700;color:var(--primary);letter-spacing:-.3px;}
+.lg-price-free{color:var(--green);}
+
 /* ============================================================
    SCREEN 2 — Post 发布页
    ============================================================ */
@@ -843,7 +876,7 @@ body{
 
   <div class="profile-tabs" id="profile-tabs">
     <div class="profile-tab active" onclick="switchProfileTab(0)">帖子</div>
-    <div class="profile-tab" onclick="switchProfileTab(1)">Token</div>
+    <div class="profile-tab" onclick="switchProfileTab(1)">作品 <span style="font-size:11px;color:var(--primary);font-weight:600;">12</span></div>
     <div class="profile-tab" onclick="switchProfileTab(2)">挂单</div>
   </div>
 
@@ -1028,62 +1061,61 @@ body{
       </div>
     </div>
 
-    <!-- ── 挂单 Tab ── -->
+    <!-- ── 挂单 Tab — 双列浏览，主客态一致 ── -->
     <div class="tab-panel-content" id="tab-listing">
 
       <div class="listing-hint">
-        <strong>💙 挂单</strong>是将你的 Token 授权或转让权以定价形式对外开放。买家可按授权类型付费获得使用权，转让成功后你保留创作者署名权。
+        <strong>💙 挂单</strong>是将已存证作品的授权或转让权公开定价。买家付费后获得对应权限，创作者署名权始终保留。
       </div>
 
-      <div class="listing-list">
+      <div class="listing-grid">
 
-        <!-- 挂单 1 — 有询价 -->
-        <div class="listing-card">
-          <div class="listing-card-inner">
-            <div class="listing-thumb" style="background:linear-gradient(145deg,#2a1f6e,#7c66ff);">🧚</div>
-            <div class="listing-info">
-              <div class="listing-name">小精灵·晴天ver.</div>
-              <div class="listing-meta">商用授权 · 挂单 12天</div>
-              <div class="listing-price">¥ 299 <small>/ 商用</small></div>
-            </div>
-            <div class="listing-status inquiry">
-              <div class="listing-status-dot"></div>
-              询价 ×2
-            </div>
+        <div class="lg-card">
+          <div class="lg-thumb" style="background:linear-gradient(145deg,#2a1f6e,#7c66ff);">
+            🧚
+            <div class="lg-cert-dot"></div>
           </div>
-          <div class="listing-card-footer">
-            <div class="listing-action" onclick="alert('查看 2 条询价消息')">查看询价</div>
-            <div class="listing-action" onclick="alert('修改价格')">改价格</div>
-            <div class="listing-action danger" onclick="alert('确认下架？')">下架</div>
+          <div class="lg-body">
+            <div class="lg-name">小精灵·晴天ver.</div>
+            <div class="lg-license">💼 商用授权</div>
+            <div class="lg-price">¥ 299</div>
           </div>
         </div>
 
-        <!-- 挂单 2 — 待售 -->
-        <div class="listing-card">
-          <div class="listing-card-inner">
-            <div class="listing-thumb" style="background:linear-gradient(145deg,#1a2a3a,#447799);">⭐</div>
-            <div class="listing-info">
-              <div class="listing-name">星野·冬夜</div>
-              <div class="listing-meta">买断授权 · 挂单 3天</div>
-              <div class="listing-price">¥ 1,200 <small>/ 买断</small></div>
-            </div>
-            <div class="listing-status active">
-              <div class="listing-status-dot"></div>
-              挂单中
-            </div>
+        <div class="lg-card">
+          <div class="lg-thumb" style="background:linear-gradient(145deg,#1a2a3a,#447799);">
+            ⭐
+            <div class="lg-cert-dot"></div>
           </div>
-          <div class="listing-card-footer">
-            <div class="listing-action" onclick="alert('推广这个 Token')">推广</div>
-            <div class="listing-action" onclick="alert('修改价格')">改价格</div>
-            <div class="listing-action danger" onclick="alert('确认下架？')">下架</div>
+          <div class="lg-body">
+            <div class="lg-name">星野·冬夜</div>
+            <div class="lg-license">🏆 买断授权</div>
+            <div class="lg-price">¥ 1,200</div>
           </div>
         </div>
 
-        <!-- 新增挂单 CTA -->
-        <div style="border:1.5px dashed var(--primary-border);border-radius:var(--r-lg);padding:var(--sp-lg) var(--sp-md);display:flex;flex-direction:column;align-items:center;gap:var(--sp-sm);cursor:pointer;" onclick="alert('选择一个 Token 创建挂单')">
-          <div style="width:40px;height:40px;background:var(--primary-light);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:20px;">➕</div>
-          <div style="font-size:14px;font-weight:600;color:var(--primary);">挂单新 Token</div>
-          <div style="font-size:12px;color:var(--text-3);text-align:center;line-height:1.5;">从你的已存证 Token 中选择，<br>设定授权类型和价格</div>
+        <div class="lg-card">
+          <div class="lg-thumb" style="background:linear-gradient(145deg,#3d1a4e,#9944cc);">
+            🦋
+            <div class="lg-cert-dot"></div>
+          </div>
+          <div class="lg-body">
+            <div class="lg-name">蝶·夏至</div>
+            <div class="lg-license">🎁 无料授权</div>
+            <div class="lg-price lg-price-free">免费</div>
+          </div>
+        </div>
+
+        <div class="lg-card">
+          <div class="lg-thumb" style="background:linear-gradient(145deg,#0e2e1a,#20a060);">
+            🐉
+            <div class="lg-cert-dot"></div>
+          </div>
+          <div class="lg-body">
+            <div class="lg-name">神龙·岁末</div>
+            <div class="lg-license">💼 商用授权</div>
+            <div class="lg-price">¥ 599</div>
+          </div>
         </div>
 
       </div>
@@ -1159,7 +1191,7 @@ body{
           <div class="sheet-prop">
             <div class="sheet-prop-icon" style="background:var(--primary-light);">🏛️</div>
             <div class="sheet-prop-text">
-              <div class="sheet-prop-title">区块链时间戳，首发即存证</div>
+              <div class="sheet-prop-title">可信时间戳，首发即存证</div>
               <div class="sheet-prop-desc">自动记录发布时间，不可篡改，证明你是第一个</div>
             </div>
           </div>
@@ -1221,7 +1253,7 @@ body{
     <div class="step-line" id="line2"></div>
     <div class="step-item">
       <div class="step-circle" id="sc3">3</div>
-      <div class="step-label" id="sl3">上链确认</div>
+      <div class="step-label" id="sl3">确认存证</div>
     </div>
   </div>
 
@@ -1303,7 +1335,7 @@ body{
   <!-- STEP 3 -->
   <div class="step-panel" id="sp3">
     <div class="step-section-title">Step 3 / 3</div>
-    <div class="step-h2">确认并上链</div>
+    <div class="step-h2">确认存证</div>
     <div class="step-desc">存证后信息不可篡改，请确认无误。</div>
 
     <div class="confirm-summary">
@@ -1321,7 +1353,7 @@ body{
       </div>
       <div class="confirm-row">
         <div class="confirm-label">存证方式</div>
-        <div class="confirm-val green">✓ 区块链时间戳</div>
+        <div class="confirm-val green">✓ 临界可信时间戳</div>
       </div>
       <div class="confirm-row">
         <div class="confirm-label">存证费用</div>
@@ -1332,7 +1364,7 @@ body{
     <div class="security-note">
       <div class="security-note-icon">🔒</div>
       <div class="security-note-text">
-        确认后将生成唯一存证编号，写入区块链，记录首发时间戳。此操作<strong>不可撤销</strong>，请确认信息无误。
+        确认后将生成唯一存证编号，记录首发时间戳。此操作<strong>不可撤销</strong>，请确认信息无误。
       </div>
     </div>
 
@@ -1342,8 +1374,8 @@ body{
   <!-- Loading overlay -->
   <div class="upload-loading" id="upload-loading">
     <div class="loading-circle"></div>
-    <div class="loading-title">正在存证上链…</div>
-    <div class="loading-desc">请稍等，正在将你的作品<br>写入区块链时间戳</div>
+    <div class="loading-title">正在存证…</div>
+    <div class="loading-desc">请稍等，正在为你的作品<br>生成可信时间戳存证</div>
     <div class="loading-steps">
       <div class="loading-step done">
         <div class="loading-step-dot"></div>
@@ -1351,15 +1383,15 @@ body{
       </div>
       <div class="loading-step done">
         <div class="loading-step-dot"></div>
-        生成存证哈希
+        生成存证编号
       </div>
       <div class="loading-step active" id="ls-current">
         <div class="loading-step-dot"></div>
-        写入区块链时间戳…
+        写入可信时间戳…
       </div>
       <div class="loading-step" id="ls-next">
         <div class="loading-step-dot"></div>
-        生成证书编号
+        生成存证证书
       </div>
     </div>
   </div>
@@ -1381,7 +1413,7 @@ body{
       <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
     <div class="success-title">存证成功 💙</div>
-    <div class="success-sub">你的作品已安全上链，首发权属永久留存</div>
+    <div class="success-sub">你的作品已安全存证，首发权属永久留存</div>
 
     <!-- Certificate -->
     <div class="cert-card">
@@ -1391,7 +1423,7 @@ body{
           <div class="cert-logo">🏛️</div>
           <div class="cert-header-text">
             <div class="cert-header-title">临界存证证书</div>
-            <div class="cert-header-sub">Blockchain Certification · LINJI</div>
+            <div class="cert-header-sub">临界认证 · LINJI</div>
           </div>
           <div class="cert-valid">
             <div class="cert-valid-dot"></div>有效
@@ -1417,8 +1449,8 @@ body{
             <div class="cert-field-val large">2024-03-15 · 14:32 CST</div>
           </div>
           <div class="cert-field-row">
-            <div class="cert-field-label">区块哈希</div>
-            <div class="cert-field-val">0x7c66…3a9d</div>
+            <div class="cert-field-label">存证方式</div>
+            <div class="cert-field-val large">临界可信时间戳</div>
           </div>
         </div>
       </div>
@@ -1426,7 +1458,7 @@ body{
 
     <!-- Actions -->
     <div class="success-actions">
-      <button class="btn btn-solid" onclick="goTo('s-profile')">查看 Token 详情</button>
+      <a class="btn btn-solid" href="token-detail.html" style="text-decoration:none;">查看存证详情</a>
       <button class="btn btn-outline" onclick="shareSuccess()">
         <svg style="width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="19" r="2"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         分享证书
@@ -1538,7 +1570,7 @@ function startUpload() {
   // Step progress
   setTimeout(() => {
     document.getElementById('ls-current').className = 'loading-step done';
-    document.getElementById('ls-current').innerHTML = '<div class="loading-step-dot"></div>写入区块链时间戳';
+    document.getElementById('ls-current').innerHTML = '<div class="loading-step-dot"></div>写入可信时间戳';
     document.getElementById('ls-next').className = 'loading-step active';
     document.getElementById('ls-next').innerHTML = '<div class="loading-step-dot"></div>生成证书编号…';
   }, 1200);
