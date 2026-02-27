@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<title>临界 · 存证发布流 Demo</title>
+<style>
+/* ============================================================
+   Design Tokens
+   ============================================================ */
+:root {
+  --primary:        #7c66ff;
+  --primary-light:  rgba(124,102,255,0.08);
+  --primary-mid:    rgba(124,102,255,0.18);
+  --primary-border: rgba(124,102,255,0.28);
+  --bg-1:           #ffffff;
+  --bg-2:           #f5f5fa;
+  --bg-3:           #ebebf4;
+  --text-1:         #000000;
+  --text-2:         rgba(0,0,0,0.62);
+  --text-3:         rgba(0,0,0,0.36);
+  --border-1:       rgba(0,0,0,0.10);
+  --border-3:       rgba(0,0,0,0.05);
+  --green:          #34c47c;
+  --green-light:    rgba(52,196,124,0.10);
+  --orange:         #ff8c42;
+  --orange-light:   rgba(255,140,66,0.10);
+  --red:            #ff4d6a;
+  --sp-xs:4px; --sp-sm:8px; --sp-md:16px; --sp-lg:24px; --sp-xl:32px;
+  --r-xs:6px; --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:24px; --r-pill:100px;
+  --font:'PingFang SC',-apple-system,'SF Pro Text','Helvetica Neue',sans-serif;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:#e8e8f0}
+
+body{
+  font-family:var(--font);
+  background:var(--bg-2);
+  color:var(--text-1);
+  -webkit-font-smoothing:antialiased;
+  max-width:390px;
+  margin:0 auto;
+  min-height:100vh;
+  position:relative;
+  overflow:hidden;
+}
+
+/* ============================================================
+   Screen system — stack of slides
+   ============================================================ */
+.screen{
+  position:absolute;inset:0;
+  background:var(--bg-2);
+  overflow-y:auto;overflow-x:hidden;
+  transition:transform .38s cubic-bezier(.4,0,.2,1), opacity .38s;
+  will-change:transform;
+  -webkit-overflow-scrolling:touch;
+}
+.screen.hidden       { transform:translateX(100%);  pointer-events:none; }
+.screen.hidden-left  { transform:translateX(-28%); opacity:.6; pointer-events:none; }
+.screen.active       { transform:translateX(0);   opacity:1; }
+
+/* Sheet overlay */
+.sheet-overlay{
+  position:absolute;inset:0;z-index:200;
+  background:rgba(0,0,0,0);
+  pointer-events:none;
+  transition:background .3s;
+}
+.sheet-overlay.show{
+  background:rgba(0,0,0,0.36);
+  pointer-events:auto;
+}
+.sheet{
+  position:absolute;bottom:0;left:0;right:0;
+  background:var(--bg-1);
+  border-radius:var(--r-xl) var(--r-xl) 0 0;
+  transform:translateY(100%);
+  transition:transform .38s cubic-bezier(.4,0,.2,1);
+  padding-bottom:0;
+}
+.sheet-overlay.show .sheet{ transform:translateY(0); }
+
+/* ============================================================
+   Shared components
+   ============================================================ */
+.nav-bar{
+  position:sticky;top:0;z-index:100;
+  height:52px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 var(--sp-sm);
+  background:rgba(245,245,250,0.88);
+  backdrop-filter:blur(20px) saturate(1.8);
+  -webkit-backdrop-filter:blur(20px) saturate(1.8);
+  border-bottom:0.5px solid var(--border-3);
+}
+.nav-btn{
+  width:36px;height:36px;border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.nav-btn svg{width:20px;height:20px;fill:none;stroke:var(--text-2);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.nav-title{font-size:15px;font-weight:600;}
+
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  border-radius:var(--r-sm);padding:11px 20px;
+  font-size:15px;font-weight:500;font-family:var(--font);
+  border:none;cursor:pointer;
+  transition:transform .12s,opacity .15s;width:100%;
+}
+.btn:active{transform:scale(.97);}
+.btn-solid{background:var(--primary);color:#fff;}
+.btn-solid:hover{opacity:.88;}
+.btn-outline{background:transparent;color:var(--text-1);border:0.5px solid var(--border-1);}
+.btn-ghost{background:transparent;color:var(--text-3);border:none;font-size:14px;}
+
+.home-indicator{
+  width:120px;height:5px;
+  background:rgba(0,0,0,0.14);border-radius:100px;
+  margin:10px auto 12px;
+}
+
+/* ============================================================
+   SCREEN 1 — 个人主页（存证状态对比）
+   ============================================================ */
+#s-profile .profile-header{
+  background:var(--bg-1);
+  padding:var(--sp-md) var(--sp-md) 0;
+}
+.profile-top{
+  display:flex;align-items:center;gap:var(--sp-sm);
+  margin-bottom:var(--sp-md);
+}
+.profile-avatar{
+  width:64px;height:64px;border-radius:var(--r-lg);
+  background:linear-gradient(135deg,#f0eeff,#ddd8ff);
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;flex-shrink:0;
+  border:0.5px solid var(--border-1);
+}
+.profile-name{font-size:18px;font-weight:700;letter-spacing:-.3px;}
+.profile-handle{font-size:13px;color:var(--text-3);margin-top:2px;}
+
+.profile-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border-top:0.5px solid var(--border-3);
+  border-bottom:0.5px solid var(--border-3);
+  margin:0 calc(-1*var(--sp-md));
+}
+.ps-item{
+  padding:var(--sp-sm) 0;text-align:center;
+  border-right:0.5px solid var(--border-3);
+}
+.ps-item:last-child{border-right:none;}
+.ps-num{font-size:18px;font-weight:700;letter-spacing:-.5px;}
+.ps-lbl{font-size:11px;color:var(--text-3);margin-top:1px;}
+
+/* Alert banner */
+.protect-banner{
+  margin:var(--sp-sm) var(--sp-md) 0;
+  background:var(--orange-light);
+  border:0.5px solid rgba(255,140,66,.28);
+  border-radius:var(--r-md);
+  padding:10px var(--sp-md);
+  display:flex;align-items:center;gap:var(--sp-sm);
+}
+.protect-banner-icon{font-size:20px;flex-shrink:0;}
+.protect-banner-text{flex:1;}
+.protect-banner-title{font-size:13px;font-weight:600;color:var(--orange);}
+.protect-banner-sub{font-size:11px;color:var(--text-3);margin-top:1px;}
+.protect-banner-btn{
+  font-size:12px;font-weight:500;color:var(--orange);
+  background:rgba(255,140,66,.15);border-radius:var(--r-pill);
+  padding:4px 12px;flex-shrink:0;cursor:pointer;
+}
+
+/* Tabs */
+.profile-tabs{
+  display:flex;background:var(--bg-1);
+  margin-top:var(--sp-sm);
+  border-bottom:0.5px solid var(--border-3);
+}
+.profile-tab{
+  flex:1;padding:10px 0;text-align:center;
+  font-size:13px;font-weight:500;color:var(--text-3);
+  position:relative;cursor:pointer;
+}
+.profile-tab.active{color:var(--primary);}
+.profile-tab.active::after{
+  content:'';position:absolute;bottom:0;left:20%;right:20%;
+  height:2px;background:var(--primary);border-radius:100px;
+}
+
+/* Grid */
+.post-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:2px;padding:2px;
+  background:var(--bg-1);
+}
+.post-cell{
+  aspect-ratio:1/1;position:relative;overflow:hidden;
+  background:var(--bg-3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:56px;cursor:pointer;
+}
+/* Protection badge */
+.cell-badge{
+  position:absolute;bottom:6px;left:6px;
+  border-radius:var(--r-xs);padding:2px 7px;
+  font-size:10px;font-weight:600;
+  display:flex;align-items:center;gap:3px;
+  backdrop-filter:blur(8px);
+}
+.cell-badge.protected{
+  background:rgba(52,196,124,.85);color:#fff;
+}
+.cell-badge.unprotected{
+  background:rgba(255,140,66,.85);color:#fff;
+}
+.cell-badge svg{width:10px;height:10px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+
+/* FAB */
+.fab{
+  position:fixed;bottom:32px;right:calc(50% - 195px + 16px);
+  width:54px;height:54px;
+  background:var(--primary);
+  border-radius:var(--r-lg);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 24px rgba(124,102,255,.40);
+  cursor:pointer;z-index:50;
+  transition:transform .12s;
+}
+.fab:active{transform:scale(.93);}
+.fab svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+/* ============================================================
+   SCREEN 2 — Post 发布页
+   ============================================================ */
+#s-publish{background:var(--bg-1);}
+
+.publish-upload{
+  margin:var(--sp-md);
+  aspect-ratio:1/1;
+  border-radius:var(--r-lg);
+  background:linear-gradient(145deg,#2a1f6e,#7c66ff);
+  display:flex;align-items:center;justify-content:center;
+  font-size:96px;
+  position:relative;overflow:hidden;cursor:pointer;
+}
+.publish-upload-label{
+  position:absolute;bottom:var(--sp-sm);left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.45);backdrop-filter:blur(8px);
+  border-radius:var(--r-pill);padding:4px 14px;
+  font-size:12px;color:rgba(255,255,255,.8);white-space:nowrap;
+}
+
+.publish-form{padding:0 var(--sp-md);}
+.publish-field{
+  width:100%;border:none;outline:none;
+  font-family:var(--font);background:transparent;
+  resize:none;
+  color:var(--text-1);
+}
+.publish-field.title{
+  font-size:18px;font-weight:700;letter-spacing:-.3px;
+  line-height:1.4;margin-bottom:var(--sp-sm);
+  border-bottom:0.5px solid var(--border-3);
+  padding-bottom:var(--sp-sm);
+}
+.publish-field.body{
+  font-size:15px;color:var(--text-2);line-height:1.7;
+  height:80px;
+}
+.publish-field::placeholder{color:var(--text-3);}
+
+.publish-options{
+  display:flex;gap:var(--sp-sm);
+  padding:var(--sp-sm) var(--sp-md);
+  border-top:0.5px solid var(--border-3);
+  margin-top:var(--sp-sm);
+}
+.pub-opt{
+  display:flex;align-items:center;gap:4px;
+  font-size:12px;color:var(--text-3);
+  background:var(--bg-2);border-radius:var(--r-pill);
+  padding:5px 12px;cursor:pointer;
+}
+.pub-opt svg{width:14px;height:14px;fill:none;stroke:var(--text-3);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+
+.publish-bottom{
+  position:sticky;bottom:0;
+  background:rgba(255,255,255,.9);
+  backdrop-filter:blur(16px);
+  padding:var(--sp-sm) var(--sp-md) 0;
+  border-top:0.5px solid var(--border-3);
+}
+
+/* ============================================================
+   SHEET — 存证引导弹窗
+   ============================================================ */
+.sheet-handle{
+  width:36px;height:4px;background:var(--bg-3);
+  border-radius:100px;margin:10px auto var(--sp-md);
+}
+.sheet-body{padding:0 var(--sp-md) 0;}
+
+.sheet-hero{
+  display:flex;flex-direction:column;align-items:center;
+  padding:var(--sp-sm) 0 var(--sp-md);
+}
+.sheet-icon{
+  width:64px;height:64px;border-radius:var(--r-xl);
+  background:var(--primary-light);border:0.5px solid var(--primary-border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:34px;margin-bottom:var(--sp-md);
+}
+.sheet-title{
+  font-size:20px;font-weight:700;letter-spacing:-.4px;
+  text-align:center;margin-bottom:var(--sp-xs);
+}
+.sheet-sub{
+  font-size:14px;color:var(--text-3);text-align:center;line-height:1.6;
+}
+
+.sheet-props{
+  display:flex;flex-direction:column;gap:var(--sp-xs);
+  margin:var(--sp-md) 0;
+  background:var(--bg-2);border-radius:var(--r-md);
+  padding:var(--sp-sm) var(--sp-md);
+}
+.sheet-prop{
+  display:flex;align-items:flex-start;gap:var(--sp-sm);
+  padding:var(--sp-xs) 0;
+}
+.sheet-prop-icon{
+  width:28px;height:28px;border-radius:var(--r-xs);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0;margin-top:1px;
+}
+.sheet-prop-text{flex:1;}
+.sheet-prop-title{font-size:13px;font-weight:600;color:var(--text-1);}
+.sheet-prop-desc{font-size:12px;color:var(--text-3);margin-top:1px;line-height:1.5;}
+
+.sheet-skip-hint{
+  text-align:center;
+  font-size:12px;color:var(--text-3);
+  margin:var(--sp-sm) 0 0;
+  line-height:1.6;
+}
+.sheet-skip-hint strong{color:var(--orange);}
+
+.sheet-actions{
+  display:flex;flex-direction:column;gap:var(--sp-xs);
+  padding:var(--sp-sm) var(--sp-md) 0;
+}
+
+/* ============================================================
+   SCREEN 3 — Token 创建流（3步）
+   ============================================================ */
+#s-token{background:var(--bg-1);}
+
+/* Progress stepper */
+.stepper{
+  display:flex;align-items:center;
+  padding:var(--sp-md) var(--sp-md) 0;
+  gap:var(--sp-xs);
+}
+.step-item{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  flex:1;
+}
+.step-circle{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:600;
+  border:1.5px solid var(--border-1);
+  color:var(--text-3);background:var(--bg-2);
+  transition:all .3s;
+}
+.step-circle.done{background:var(--green);border-color:var(--green);color:#fff;}
+.step-circle.done svg{width:13px;height:13px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+.step-circle.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+.step-label{font-size:10px;color:var(--text-3);}
+.step-label.active{color:var(--primary);font-weight:500;}
+.step-line{flex:1;height:1px;background:var(--border-1);margin-bottom:14px;}
+.step-line.done{background:var(--green);}
+
+/* Step panels */
+.step-panel{display:none;padding:var(--sp-md);}
+.step-panel.active{display:block;}
+
+.step-section-title{
+  font-size:11px;font-weight:500;letter-spacing:1.2px;
+  text-transform:uppercase;color:var(--primary);
+  margin-bottom:var(--sp-xs);
+}
+.step-h2{
+  font-size:22px;font-weight:700;letter-spacing:-.5px;
+  line-height:1.3;margin-bottom:var(--sp-sm);
+}
+.step-desc{font-size:14px;color:var(--text-2);line-height:1.65;margin-bottom:var(--sp-md);}
+
+/* Step 1 — artwork confirm */
+.artwork-confirm{
+  border-radius:var(--r-lg);overflow:hidden;
+  border:0.5px solid var(--border-1);
+  margin-bottom:var(--sp-md);
+}
+.artwork-preview{
+  aspect-ratio:16/9;
+  background:linear-gradient(145deg,#2a1f6e,#7c66ff);
+  display:flex;align-items:center;justify-content:center;
+  font-size:72px;
+}
+.artwork-meta{padding:var(--sp-sm) var(--sp-md);}
+.artwork-meta-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 0;border-bottom:0.5px solid var(--border-3);
+}
+.artwork-meta-row:last-child{border-bottom:none;}
+.artwork-meta-label{font-size:12px;color:var(--text-3);}
+.artwork-meta-val{font-size:13px;font-weight:500;color:var(--text-1);}
+.artwork-meta-val.edit{color:var(--primary);cursor:pointer;}
+
+/* Step 2 — license */
+.license-grid{
+  display:flex;flex-direction:column;gap:var(--sp-sm);
+  margin-bottom:var(--sp-md);
+}
+.license-card{
+  border:1.5px solid var(--border-1);
+  border-radius:var(--r-md);
+  padding:var(--sp-sm) var(--sp-md);
+  cursor:pointer;
+  transition:border-color .2s,background .2s;
+  display:flex;align-items:flex-start;gap:var(--sp-sm);
+}
+.license-card.selected{
+  border-color:var(--primary);
+  background:var(--primary-light);
+}
+.license-card-icon{
+  width:36px;height:36px;border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+  background:var(--bg-2);
+}
+.license-card.selected .license-card-icon{background:var(--primary-mid);}
+.license-card-info{flex:1;}
+.license-card-name{font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:2px;}
+.license-card-desc{font-size:12px;color:var(--text-3);line-height:1.5;}
+.license-card-radio{
+  width:20px;height:20px;border-radius:50%;
+  border:1.5px solid var(--border-1);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:2px;
+  transition:all .2s;
+}
+.license-card.selected .license-card-radio{
+  border-color:var(--primary);background:var(--primary);
+}
+.license-card.selected .license-card-radio::after{
+  content:'';width:8px;height:8px;border-radius:50%;background:#fff;
+}
+
+/* Step 3 — confirm */
+.confirm-summary{
+  background:var(--bg-2);border-radius:var(--r-lg);
+  padding:var(--sp-md);margin-bottom:var(--sp-md);
+}
+.confirm-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 0;border-bottom:0.5px solid var(--border-3);
+}
+.confirm-row:last-child{border-bottom:none;}
+.confirm-label{font-size:12px;color:var(--text-3);}
+.confirm-val{font-size:13px;font-weight:500;color:var(--text-1);}
+.confirm-val.primary{color:var(--primary);}
+.confirm-val.green{color:var(--green);}
+
+.security-note{
+  display:flex;align-items:flex-start;gap:var(--sp-sm);
+  background:var(--primary-light);border:0.5px solid var(--primary-border);
+  border-radius:var(--r-md);padding:var(--sp-sm) var(--sp-md);
+  margin-bottom:var(--sp-md);
+}
+.security-note-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.security-note-text{font-size:12px;color:var(--text-2);line-height:1.6;}
+
+/* Loading state */
+.upload-loading{
+  display:none;flex-direction:column;align-items:center;
+  padding:var(--sp-xl) var(--sp-md);
+}
+.upload-loading.show{display:flex;}
+.loading-circle{
+  width:72px;height:72px;border-radius:50%;
+  border:3px solid var(--bg-3);
+  border-top-color:var(--primary);
+  animation:spin .9s linear infinite;
+  margin-bottom:var(--sp-lg);
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-title{font-size:16px;font-weight:600;margin-bottom:var(--sp-xs);}
+.loading-desc{font-size:13px;color:var(--text-3);text-align:center;line-height:1.6;}
+.loading-steps{
+  display:flex;flex-direction:column;gap:var(--sp-sm);
+  margin-top:var(--sp-lg);width:100%;
+}
+.loading-step{
+  display:flex;align-items:center;gap:var(--sp-sm);
+  font-size:13px;color:var(--text-3);
+}
+.loading-step.done{color:var(--green);}
+.loading-step.active{color:var(--primary);font-weight:500;}
+.loading-step-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--bg-3);flex-shrink:0;
+}
+.loading-step.done .loading-step-dot{background:var(--green);}
+.loading-step.active .loading-step-dot{
+  background:var(--primary);
+  box-shadow:0 0 0 3px rgba(124,102,255,.2);
+  animation:pulse-dot 1.2s ease-in-out infinite;
+}
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 3px rgba(124,102,255,.2)}50%{box-shadow:0 0 0 6px rgba(124,102,255,.08)}}
+
+/* ============================================================
+   SCREEN 4 — 存证成功庆祝页
+   ============================================================ */
+#s-success{background:var(--bg-1);overflow:hidden;}
+
+.success-bg{
+  position:absolute;top:0;left:0;right:0;height:260px;
+  background:linear-gradient(160deg,#1a1040 0%,#3a2880 50%,#7c66ff 100%);
+  overflow:hidden;
+}
+/* Floating orbs */
+.orb{
+  position:absolute;border-radius:50%;
+  background:rgba(255,255,255,0.06);
+  animation:float-orb 6s ease-in-out infinite;
+}
+@keyframes float-orb{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+.success-content{
+  position:relative;z-index:1;
+  display:flex;flex-direction:column;align-items:center;
+  padding-top:56px;
+}
+
+/* Tick animation */
+.success-tick{
+  width:72px;height:72px;border-radius:50%;
+  background:rgba(255,255,255,.15);
+  border:2px solid rgba(255,255,255,.3);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:var(--sp-md);
+  animation:pop .5s cubic-bezier(.18,.89,.32,1.28) both;
+}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.success-tick svg{width:36px;height:36px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+
+.success-title{
+  font-size:22px;font-weight:700;color:#fff;
+  letter-spacing:-.4px;margin-bottom:var(--sp-xs);
+  animation:fadeUp .4s ease .15s both;
+}
+.success-sub{
+  font-size:14px;color:rgba(255,255,255,.6);
+  margin-bottom:var(--sp-xl);
+  animation:fadeUp .4s ease .2s both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* Certificate card */
+.cert-card{
+  width:calc(100% - 32px);
+  background:#fff;border-radius:var(--r-xl);
+  overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.18);
+  animation:fadeUp .5s ease .3s both;
+}
+.cert-top-strip{
+  height:4px;
+  background:linear-gradient(90deg,#7c66ff 0%,#a594ff 50%,#7c66ff 100%);
+}
+.cert-inner{padding:var(--sp-md);}
+
+.cert-header{
+  display:flex;align-items:center;gap:var(--sp-sm);
+  margin-bottom:var(--sp-md);padding-bottom:var(--sp-sm);
+  border-bottom:0.5px solid var(--border-3);
+}
+.cert-logo{
+  width:40px;height:40px;border-radius:var(--r-sm);
+  background:var(--primary-light);border:0.5px solid var(--primary-border);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+}
+.cert-header-text{flex:1;}
+.cert-header-title{font-size:14px;font-weight:700;color:var(--primary);}
+.cert-header-sub{font-size:11px;color:var(--text-3);margin-top:1px;}
+.cert-valid{
+  display:flex;align-items:center;gap:4px;
+  background:var(--green-light);border-radius:var(--r-pill);
+  padding:3px 10px;font-size:11px;color:var(--green);font-weight:500;
+}
+.cert-valid-dot{width:5px;height:5px;border-radius:50%;background:var(--green);}
+
+.cert-artwork-row{
+  display:flex;align-items:center;gap:var(--sp-sm);
+  margin-bottom:var(--sp-sm);
+}
+.cert-artwork-thumb{
+  width:52px;height:52px;border-radius:var(--r-md);
+  background:linear-gradient(145deg,#2a1f6e,#7c66ff);
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  flex-shrink:0;
+}
+.cert-artwork-info{flex:1;}
+.cert-artwork-title{font-size:15px;font-weight:600;color:var(--text-1);}
+.cert-artwork-creator{font-size:12px;color:var(--text-3);margin-top:2px;}
+.cert-license-tag{
+  display:inline-flex;align-items:center;gap:3px;
+  background:var(--primary-light);color:var(--primary);
+  border-radius:var(--r-pill);padding:2px 9px;
+  font-size:10px;font-weight:500;margin-top:4px;
+}
+
+.cert-fields{background:var(--bg-2);border-radius:var(--r-md);padding:var(--sp-sm) var(--sp-md);}
+.cert-field-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:5px 0;border-bottom:0.5px solid var(--border-3);
+}
+.cert-field-row:last-child{border-bottom:none;}
+.cert-field-label{font-size:11px;color:var(--text-3);}
+.cert-field-val{font-size:11px;font-weight:500;color:var(--text-1);font-family:'SF Mono','Menlo',monospace;text-align:right;}
+.cert-field-val.large{font-family:var(--font);font-size:12px;}
+
+/* Success actions */
+.success-actions{
+  width:calc(100% - 32px);
+  display:flex;flex-direction:column;gap:var(--sp-sm);
+  margin-top:var(--sp-md);
+  animation:fadeUp .4s ease .45s both;
+}
+
+/* Confetti */
+.confetti-wrap{
+  position:fixed;inset:0;pointer-events:none;z-index:999;
+  overflow:hidden;
+}
+.confetto{
+  position:absolute;top:-10px;
+  width:8px;height:8px;
+  border-radius:1px;
+  animation:confetti-fall linear both;
+}
+@keyframes confetti-fall{
+  to{transform:translateY(110vh) rotate(720deg);}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     SCREEN 1 — 个人主页
+     ============================================================ -->
+<div class="screen active" id="s-profile">
+  <div class="nav-bar">
+    <div class="nav-btn">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+    <div class="nav-title">MoriSky</div>
+    <div class="nav-btn">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="19" r="1.5" fill="currentColor"/></svg>
+    </div>
+  </div>
+
+  <div class="profile-header">
+    <div class="profile-top">
+      <div class="profile-avatar">🧑‍🎨</div>
+      <div>
+        <div class="profile-name">MoriSky</div>
+        <div class="profile-handle">@morisky · 原创插画师</div>
+      </div>
+    </div>
+    <div class="profile-stats">
+      <div class="ps-item"><div class="ps-num">48</div><div class="ps-lbl">作品</div></div>
+      <div class="ps-item"><div class="ps-num">2.6k</div><div class="ps-lbl">粉丝</div></div>
+      <div class="ps-item"><div class="ps-num">12</div><div class="ps-lbl" style="color:var(--green);">💙已存证</div></div>
+    </div>
+  </div>
+
+  <!-- 存证提醒 banner -->
+  <div class="protect-banner">
+    <div class="protect-banner-icon">⚠️</div>
+    <div class="protect-banner-text">
+      <div class="protect-banner-title">36 个作品尚未存证</div>
+      <div class="protect-banner-sub">未存证作品被盗用将无法维权</div>
+    </div>
+    <div class="protect-banner-btn">补存证</div>
+  </div>
+
+  <div class="profile-tabs">
+    <div class="profile-tab active">作品</div>
+    <div class="profile-tab">Token</div>
+    <div class="profile-tab">喜欢</div>
+  </div>
+
+  <div class="post-grid">
+    <!-- 已存证 -->
+    <div class="post-cell" style="background:linear-gradient(145deg,#2a1f6e,#7c66ff);">
+      🧚
+      <div class="cell-badge protected">
+        <svg viewBox="0 0 12 12"><path d="M6 11s4-2 4-5V2.5L6 1 2 2.5V6c0 3 4 5 4 5z"/></svg>
+        已存证
+      </div>
+    </div>
+    <!-- 未存证 -->
+    <div class="post-cell" style="background:linear-gradient(145deg,#1e3a5f,#4477cc);">
+      🌙
+      <div class="cell-badge unprotected">⚠️ 未保护</div>
+    </div>
+    <div class="post-cell" style="background:linear-gradient(145deg,#3d1a4e,#9944cc);">
+      🦋
+      <div class="cell-badge protected">
+        <svg viewBox="0 0 12 12"><path d="M6 11s4-2 4-5V2.5L6 1 2 2.5V6c0 3 4 5 4 5z"/></svg>
+        已存证
+      </div>
+    </div>
+    <div class="post-cell" style="background:linear-gradient(145deg,#1a3a2e,#2d8a6e);">
+      🌿
+      <div class="cell-badge unprotected">⚠️ 未保护</div>
+    </div>
+    <div class="post-cell" style="background:linear-gradient(145deg,#3a1a1a,#cc4444);">
+      🔮
+      <div class="cell-badge unprotected">⚠️ 未保护</div>
+    </div>
+    <div class="post-cell" style="background:linear-gradient(145deg,#1a2a3a,#447799);">
+      ⭐
+      <div class="cell-badge protected">
+        <svg viewBox="0 0 12 12"><path d="M6 11s4-2 4-5V2.5L6 1 2 2.5V6c0 3 4 5 4 5z"/></svg>
+        已存证
+      </div>
+    </div>
+  </div>
+
+  <div style="height:80px"></div>
+
+  <!-- FAB: 发布 -->
+  <div class="fab" onclick="goTo('s-publish')">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     SCREEN 2 — Post 发布页
+     ============================================================ -->
+<div class="screen hidden" id="s-publish">
+  <div class="nav-bar">
+    <div class="nav-btn" onclick="goBack()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+    <div class="nav-title">发布作品</div>
+    <div style="width:36px"></div>
+  </div>
+
+  <div class="publish-upload">
+    🧚
+    <div class="publish-upload-label">✦ 已选 3 张图</div>
+  </div>
+
+  <div class="publish-form">
+    <textarea class="publish-field title" rows="2" placeholder="给作品取个名字…">小精灵·晴天ver.</textarea>
+    <textarea class="publish-field body" placeholder="说点什么…">花了两周画完的小精灵，翅膀的透明感处理了很久，终于满意了 🧚 #原创插画</textarea>
+  </div>
+
+  <div class="publish-options">
+    <div class="pub-opt">
+      <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      话题
+    </div>
+    <div class="pub-opt">
+      <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      位置
+    </div>
+    <div class="pub-opt">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      公开
+    </div>
+  </div>
+
+  <div class="publish-bottom">
+    <!-- 主发布按钮 → 触发弹窗 -->
+    <button class="btn btn-solid" onclick="showSheet()">发布</button>
+    <div class="home-indicator"></div>
+  </div>
+
+  <!-- ── SHEET 存证引导弹窗 ── -->
+  <div class="sheet-overlay" id="cert-sheet">
+    <div style="flex:1" onclick="hideSheet()"></div>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-body">
+        <div class="sheet-hero">
+          <div class="sheet-icon">🔒</div>
+          <div class="sheet-title">顺手给作品上个锁？</div>
+          <div class="sheet-sub">发布同时生成 Token 存证<br>让每一笔原创都有凭有据</div>
+        </div>
+
+        <div class="sheet-props">
+          <div class="sheet-prop">
+            <div class="sheet-prop-icon" style="background:var(--primary-light);">🏛️</div>
+            <div class="sheet-prop-text">
+              <div class="sheet-prop-title">区块链时间戳，首发即存证</div>
+              <div class="sheet-prop-desc">自动记录发布时间，不可篡改，证明你是第一个</div>
+            </div>
+          </div>
+          <div class="sheet-prop">
+            <div class="sheet-prop-icon" style="background:var(--green-light);">📦</div>
+            <div class="sheet-prop-text">
+              <div class="sheet-prop-title">一键生成证据包，盗图秒维权</div>
+              <div class="sheet-prop-desc">遇到盗图直接导出 PDF 证据包，投诉小红书/微博</div>
+            </div>
+          </div>
+          <div class="sheet-prop">
+            <div class="sheet-prop-icon" style="background:var(--orange-light);">⚡</div>
+            <div class="sheet-prop-text">
+              <div class="sheet-prop-title">现在存证，只需 30 秒</div>
+              <div class="sheet-prop-desc">信息已从 Post 自动填入，选个授权类型就完成</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sheet-actions">
+        <button class="btn btn-solid" onclick="hideSheet(); goTo('s-token')">
+          立即存证（30秒）
+        </button>
+        <div class="sheet-skip-hint">
+          跳过后此作品<strong>无维权依据</strong>，被盗用将难以举证
+        </div>
+        <button class="btn btn-ghost" onclick="hideSheet(); skipAndPublish()">跳过，直接发布</button>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     SCREEN 3 — Token 创建流（3步）
+     ============================================================ -->
+<div class="screen hidden" id="s-token">
+  <div class="nav-bar">
+    <div class="nav-btn" onclick="goBack()">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+    <div class="nav-title">存证</div>
+    <div style="width:36px"></div>
+  </div>
+
+  <!-- Stepper -->
+  <div class="stepper" id="stepper">
+    <div class="step-item">
+      <div class="step-circle active" id="sc1">1</div>
+      <div class="step-label active" id="sl1">确认作品</div>
+    </div>
+    <div class="step-line" id="line1"></div>
+    <div class="step-item">
+      <div class="step-circle" id="sc2">2</div>
+      <div class="step-label" id="sl2">授权设置</div>
+    </div>
+    <div class="step-line" id="line2"></div>
+    <div class="step-item">
+      <div class="step-circle" id="sc3">3</div>
+      <div class="step-label" id="sl3">上链确认</div>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step-panel active" id="sp1">
+    <div class="step-section-title">Step 1 / 3</div>
+    <div class="step-h2">确认作品信息</div>
+    <div class="step-desc">以下信息从你的 Post 自动读取，可以修改。</div>
+
+    <div class="artwork-confirm">
+      <div class="artwork-preview">🧚</div>
+      <div class="artwork-meta">
+        <div class="artwork-meta-row">
+          <div class="artwork-meta-label">作品名称</div>
+          <div class="artwork-meta-val edit">小精灵·晴天ver. ✎</div>
+        </div>
+        <div class="artwork-meta-row">
+          <div class="artwork-meta-label">作品类型</div>
+          <div class="artwork-meta-val">原创插画</div>
+        </div>
+        <div class="artwork-meta-row">
+          <div class="artwork-meta-label">创作者</div>
+          <div class="artwork-meta-val">@MoriSky（你）</div>
+        </div>
+        <div class="artwork-meta-row">
+          <div class="artwork-meta-label">存证时间</div>
+          <div class="artwork-meta-val" style="color:var(--green);">2024-03-15 · 自动记录</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-solid" onclick="toStep(2)">信息无误，下一步 →</button>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step-panel" id="sp2">
+    <div class="step-section-title">Step 2 / 3</div>
+    <div class="step-h2">选择授权类型</div>
+    <div class="step-desc">决定别人可以怎样使用你的作品。</div>
+
+    <div class="license-grid">
+      <div class="license-card" onclick="selectLicense(this)">
+        <div class="license-card-icon">🔒</div>
+        <div class="license-card-info">
+          <div class="license-card-name">仅自用</div>
+          <div class="license-card-desc">任何人不得以任何形式使用，仅作存证留档</div>
+        </div>
+        <div class="license-card-radio"></div>
+      </div>
+      <div class="license-card selected" onclick="selectLicense(this)">
+        <div class="license-card-icon">🎁</div>
+        <div class="license-card-info">
+          <div class="license-card-name">无料授权</div>
+          <div class="license-card-desc">允许非商业转载，需注明作者和来源</div>
+        </div>
+        <div class="license-card-radio"></div>
+      </div>
+      <div class="license-card" onclick="selectLicense(this)">
+        <div class="license-card-icon">💼</div>
+        <div class="license-card-info">
+          <div class="license-card-name">商业授权</div>
+          <div class="license-card-desc">允许购买后用于商业用途，支持设置售价</div>
+        </div>
+        <div class="license-card-radio"></div>
+      </div>
+      <div class="license-card" onclick="selectLicense(this)">
+        <div class="license-card-icon">🏆</div>
+        <div class="license-card-info">
+          <div class="license-card-name">买断授权</div>
+          <div class="license-card-desc">购买者获得完整使用权，含二次创作</div>
+        </div>
+        <div class="license-card-radio"></div>
+      </div>
+    </div>
+
+    <button class="btn btn-solid" onclick="toStep(3)">已选好，下一步 →</button>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step-panel" id="sp3">
+    <div class="step-section-title">Step 3 / 3</div>
+    <div class="step-h2">确认并上链</div>
+    <div class="step-desc">存证后信息不可篡改，请确认无误。</div>
+
+    <div class="confirm-summary">
+      <div class="confirm-row">
+        <div class="confirm-label">作品名称</div>
+        <div class="confirm-val">小精灵·晴天ver.</div>
+      </div>
+      <div class="confirm-row">
+        <div class="confirm-label">创作者</div>
+        <div class="confirm-val">@MoriSky</div>
+      </div>
+      <div class="confirm-row">
+        <div class="confirm-label">授权类型</div>
+        <div class="confirm-val primary">无料授权</div>
+      </div>
+      <div class="confirm-row">
+        <div class="confirm-label">存证方式</div>
+        <div class="confirm-val green">✓ 区块链时间戳</div>
+      </div>
+      <div class="confirm-row">
+        <div class="confirm-label">存证费用</div>
+        <div class="confirm-val green">✓ 免费</div>
+      </div>
+    </div>
+
+    <div class="security-note">
+      <div class="security-note-icon">🔒</div>
+      <div class="security-note-text">
+        确认后将生成唯一存证编号，写入区块链，记录首发时间戳。此操作<strong>不可撤销</strong>，请确认信息无误。
+      </div>
+    </div>
+
+    <button class="btn btn-solid" id="confirm-btn" onclick="startUpload()">确认存证，发布作品</button>
+  </div>
+
+  <!-- Loading overlay -->
+  <div class="upload-loading" id="upload-loading">
+    <div class="loading-circle"></div>
+    <div class="loading-title">正在存证上链…</div>
+    <div class="loading-desc">请稍等，正在将你的作品<br>写入区块链时间戳</div>
+    <div class="loading-steps">
+      <div class="loading-step done">
+        <div class="loading-step-dot"></div>
+        Post 发布成功
+      </div>
+      <div class="loading-step done">
+        <div class="loading-step-dot"></div>
+        生成存证哈希
+      </div>
+      <div class="loading-step active" id="ls-current">
+        <div class="loading-step-dot"></div>
+        写入区块链时间戳…
+      </div>
+      <div class="loading-step" id="ls-next">
+        <div class="loading-step-dot"></div>
+        生成证书编号
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     SCREEN 4 — 存证成功庆祝页
+     ============================================================ -->
+<div class="screen hidden" id="s-success">
+  <div class="success-bg">
+    <div class="orb" style="width:120px;height:120px;top:-20px;left:-30px;animation-delay:0s"></div>
+    <div class="orb" style="width:80px;height:80px;top:40px;right:-10px;animation-delay:1s"></div>
+    <div class="orb" style="width:60px;height:60px;top:100px;left:60px;animation-delay:2s"></div>
+  </div>
+
+  <div class="success-content">
+    <div class="success-tick">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="success-title">存证成功 💙</div>
+    <div class="success-sub">你的作品已安全上链，首发权属永久留存</div>
+
+    <!-- Certificate -->
+    <div class="cert-card">
+      <div class="cert-top-strip"></div>
+      <div class="cert-inner">
+        <div class="cert-header">
+          <div class="cert-logo">🏛️</div>
+          <div class="cert-header-text">
+            <div class="cert-header-title">临界存证证书</div>
+            <div class="cert-header-sub">Blockchain Certification · LINJI</div>
+          </div>
+          <div class="cert-valid">
+            <div class="cert-valid-dot"></div>有效
+          </div>
+        </div>
+
+        <div class="cert-artwork-row">
+          <div class="cert-artwork-thumb">🧚</div>
+          <div class="cert-artwork-info">
+            <div class="cert-artwork-title">小精灵·晴天ver.</div>
+            <div class="cert-artwork-creator">by @MoriSky</div>
+            <div class="cert-license-tag">🎁 无料授权</div>
+          </div>
+        </div>
+
+        <div class="cert-fields">
+          <div class="cert-field-row">
+            <div class="cert-field-label">存证编号</div>
+            <div class="cert-field-val">LJ-2024-0315-7C66</div>
+          </div>
+          <div class="cert-field-row">
+            <div class="cert-field-label">首发时间</div>
+            <div class="cert-field-val large">2024-03-15 · 14:32 CST</div>
+          </div>
+          <div class="cert-field-row">
+            <div class="cert-field-label">区块哈希</div>
+            <div class="cert-field-val">0x7c66…3a9d</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="success-actions">
+      <button class="btn btn-solid" onclick="goTo('s-profile')">查看 Token 详情</button>
+      <button class="btn btn-outline" onclick="shareSuccess()">
+        <svg style="width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="19" r="2"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        分享证书
+      </button>
+    </div>
+    <div style="height:40px"></div>
+  </div>
+</div>
+
+<!-- Confetti container -->
+<div class="confetti-wrap" id="confetti-wrap"></div>
+
+<script>
+/* ── Screen navigation ── */
+const history = [];
+
+function goTo(id) {
+  const cur = document.querySelector('.screen.active');
+  const next = document.getElementById(id);
+  if (!cur || !next || cur === next) return;
+
+  cur.classList.remove('active');
+  cur.classList.add('hidden-left');
+  next.classList.remove('hidden');
+  next.classList.remove('hidden-left');
+  next.classList.add('active');
+  next.scrollTop = 0;
+  history.push(cur.id);
+}
+
+function goBack() {
+  if (!history.length) return;
+  const prevId = history.pop();
+  const cur = document.querySelector('.screen.active');
+  const prev = document.getElementById(prevId);
+  if (!cur || !prev) return;
+
+  cur.classList.remove('active');
+  cur.classList.add('hidden');
+  prev.classList.remove('hidden-left');
+  prev.classList.add('active');
+}
+
+/* ── Sheet ── */
+function showSheet() {
+  document.getElementById('cert-sheet').classList.add('show');
+}
+function hideSheet() {
+  document.getElementById('cert-sheet').classList.remove('show');
+}
+function skipAndPublish() {
+  alert('已跳过存证，Post 直接发布。\n\n（无 Token 保护状态）');
+  goBack();
+}
+
+/* ── License selection ── */
+function selectLicense(card) {
+  document.querySelectorAll('.license-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+}
+
+/* ── Stepper ── */
+let currentStep = 1;
+
+function toStep(n) {
+  // Hide current panel
+  document.getElementById('sp' + currentStep).classList.remove('active');
+
+  // Mark step as done
+  const sc = document.getElementById('sc' + currentStep);
+  sc.classList.remove('active');
+  sc.classList.add('done');
+  sc.innerHTML = '<svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>';
+
+  // Mark connecting line as done
+  if (currentStep < 3) {
+    document.getElementById('line' + currentStep).classList.add('done');
+  }
+
+  // Activate next step
+  currentStep = n;
+  const scNew = document.getElementById('sc' + n);
+  scNew.classList.add('active');
+  scNew.textContent = n;
+  const slNew = document.getElementById('sl' + n);
+  slNew.classList.add('active');
+
+  // Show next panel
+  document.getElementById('sp' + n).classList.add('active');
+  document.getElementById('s-token').scrollTop = 0;
+}
+
+/* ── Upload animation ── */
+function startUpload() {
+  // Hide step panel, show loading
+  document.getElementById('sp3').style.display = 'none';
+  const loading = document.getElementById('upload-loading');
+  loading.classList.add('show');
+  document.getElementById('s-token').scrollTop = 0;
+
+  // Step progress
+  setTimeout(() => {
+    document.getElementById('ls-current').className = 'loading-step done';
+    document.getElementById('ls-current').innerHTML = '<div class="loading-step-dot"></div>写入区块链时间戳';
+    document.getElementById('ls-next').className = 'loading-step active';
+    document.getElementById('ls-next').innerHTML = '<div class="loading-step-dot"></div>生成证书编号…';
+  }, 1200);
+
+  setTimeout(() => {
+    document.getElementById('ls-next').className = 'loading-step done';
+    document.getElementById('ls-next').innerHTML = '<div class="loading-step-dot"></div>生成证书编号';
+  }, 2200);
+
+  setTimeout(() => {
+    loading.classList.remove('show');
+    goTo('s-success');
+    launchConfetti();
+  }, 2800);
+}
+
+/* ── Confetti ── */
+function launchConfetti() {
+  const wrap = document.getElementById('confetti-wrap');
+  wrap.innerHTML = '';
+  const colors = ['#7c66ff','#a594ff','#34c47c','#ffcc44','#ff8c42','#fff'];
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetto';
+    el.style.cssText = `
+      left:${Math.random()*100}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      width:${6+Math.random()*6}px;
+      height:${6+Math.random()*6}px;
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+      animation-duration:${1.5+Math.random()*1.5}s;
+      animation-delay:${Math.random()*.6}s;
+    `;
+    wrap.appendChild(el);
+  }
+  setTimeout(() => { wrap.innerHTML = ''; }, 3500);
+}
+
+/* ── Share ── */
+function shareSuccess() {
+  alert('分享证书 →\n\n「我的作品《小精灵·晴天ver.》已在临界完成区块链存证\n存证编号：LJ-2024-0315-7C66\n愿天下无盗设 · 发布即存证 💙」');
+}
+</script>
+</body>
+</html>
