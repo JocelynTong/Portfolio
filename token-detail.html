@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>Token 详情 — 临界</title>
+  <style>
+    /* ============================================================
+       Design Tokens — 临界 原子分子组件库 💙
+       ============================================================ */
+    :root {
+      --primary:         #7c66ff;
+      --primary-light:   rgba(124,102,255,0.08);
+      --primary-mid:     rgba(124,102,255,0.15);
+      --primary-border:  rgba(124,102,255,0.28);
+      --bg-1:            #ffffff;
+      --bg-2:            #f5f5fa;
+      --bg-3:            #ededf5;
+      --text-1:          #000000;
+      --text-2:          rgba(0,0,0,0.64);
+      --text-3:          rgba(0,0,0,0.38);
+      --border-1:        rgba(0,0,0,0.10);
+      --border-3:        rgba(0,0,0,0.05);
+      --green:           #34c47c;
+      --green-light:     rgba(52,196,124,0.10);
+      --orange:          #ff8c42;
+      --orange-light:    rgba(255,140,66,0.10);
+      --red:             #ff4d6a;
+      --red-light:       rgba(255,77,106,0.10);
+
+      --sp-xs:  4px;
+      --sp-sm:  8px;
+      --sp-md:  16px;
+      --sp-lg:  24px;
+      --sp-xl:  32px;
+
+      --r-xs:  6px;
+      --r-sm:  8px;
+      --r-md:  12px;
+      --r-lg:  16px;
+      --r-pill:100px;
+
+      --font: 'PingFang SC',-apple-system,'SF Pro Text','Helvetica Neue',sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    html { background:#f5f5fa; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-2);
+      color: var(--text-1);
+      -webkit-font-smoothing: antialiased;
+      /* Simulate phone frame in browser */
+      max-width: 390px;
+      margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Scroll container */
+    .page {
+      background: var(--bg-2);
+      padding-bottom: 100px;
+    }
+
+    /* ============================================================
+       Top Navigation Bar
+       ============================================================ */
+    .nav-bar {
+      position: sticky; top: 0; z-index: 100;
+      height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 var(--sp-sm);
+      background: rgba(245,245,250,0.85);
+      backdrop-filter: blur(20px) saturate(1.8);
+      -webkit-backdrop-filter: blur(20px) saturate(1.8);
+      border-bottom: 0.5px solid var(--border-3);
+    }
+
+    .nav-btn {
+      width: 36px; height: 36px;
+      border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg-1); border: 0.5px solid var(--border-1);
+      cursor: pointer;
+    }
+    .nav-btn svg { width:18px; height:18px; fill:none; stroke:var(--text-2); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+
+    .nav-title {
+      font-size: 16px; font-weight: 600; letter-spacing: -0.2px;
+    }
+
+    .nav-right { display:flex; gap:var(--sp-xs); }
+
+    /* ============================================================
+       Artwork Hero
+       ============================================================ */
+    .hero {
+      position: relative; margin: var(--sp-sm) var(--sp-sm) 0;
+      border-radius: var(--r-lg); overflow: hidden;
+    }
+
+    .hero-img {
+      width: 100%; aspect-ratio: 1/1;
+      background: linear-gradient(145deg, #2a1f6e 0%, #4e3bba 45%, #7c66ff 75%, #a594ff 100%);
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+
+    /* Artwork placeholder — stylised illustration */
+    .artwork-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .art-char {
+      font-size: 120px; line-height: 1;
+      filter: drop-shadow(0 8px 32px rgba(0,0,0,0.4));
+      user-select: none;
+    }
+
+    /* Verified stamp overlay */
+    .cert-stamp {
+      position: absolute; top: var(--sp-md); left: var(--sp-md);
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(12px);
+      border: 0.5px solid rgba(255,255,255,0.18);
+      border-radius: var(--r-pill);
+      padding: 5px 12px;
+    }
+    .stamp-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 3px rgba(52,196,124,0.3);
+    }
+    .stamp-text {
+      font-size: 12px; font-weight: 500; color: #fff;
+    }
+
+    /* Edition badge */
+    .edition-badge {
+      position: absolute; bottom: var(--sp-md); right: var(--sp-md);
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(12px);
+      border: 0.5px solid rgba(255,255,255,0.18);
+      border-radius: var(--r-xs);
+      padding: 4px 10px;
+      font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.8);
+    }
+    .edition-badge strong { color: #fff; }
+
+    /* ============================================================
+       Title block
+       ============================================================ */
+    .title-block {
+      background: var(--bg-1);
+      margin: 2px var(--sp-sm) 0;
+      border-radius: 0 0 var(--r-lg) var(--r-lg);
+      padding: var(--sp-md);
+      border-top: none;
+    }
+
+    .title-row {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: var(--sp-sm);
+    }
+
+    .title-main {
+      font-size: 20px; font-weight: 700; letter-spacing: -0.4px;
+      color: var(--text-1); line-height: 1.3;
+    }
+
+    .like-btn {
+      display: flex; align-items: center; gap: 4px;
+      flex-shrink: 0;
+    }
+    .like-btn svg { width:22px; height:22px; fill:none; stroke:var(--text-3); stroke-width:1.8; transition:stroke .2s; }
+
+    .title-sub {
+      margin-top: 4px;
+      font-size: 13px; color: var(--text-3); display:flex; align-items:center; gap:6px;
+    }
+    .title-sub-sep { color: var(--border-1); }
+
+    /* ============================================================
+       Section card shared
+       ============================================================ */
+    .card {
+      background: var(--bg-1);
+      border-radius: var(--r-lg);
+      margin: var(--sp-sm) var(--sp-sm) 0;
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--sp-md) var(--sp-md) var(--sp-sm);
+    }
+
+    .card-title {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 14px; font-weight: 600; color: var(--text-1);
+    }
+    .card-title-icon {
+      width: 28px; height: 28px; border-radius: var(--r-xs);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+    }
+
+    .card-action {
+      font-size: 12px; color: var(--primary); font-weight: 500;
+    }
+
+    .card-divider {
+      height: 0.5px; background: var(--border-3);
+      margin: 0 var(--sp-md);
+    }
+
+    /* ============================================================
+       Certificate Card
+       ============================================================ */
+    .cert-card {
+      background: var(--bg-1);
+      border-radius: var(--r-lg);
+      margin: var(--sp-sm) var(--sp-sm) 0;
+      overflow: hidden;
+      /* subtle border */
+      border: 0.5px solid var(--primary-border);
+      position: relative;
+    }
+
+    /* Top gradient strip */
+    .cert-top-bar {
+      height: 4px;
+      background: linear-gradient(90deg, #7c66ff 0%, #a594ff 50%, #7c66ff 100%);
+    }
+
+    .cert-body { padding: var(--sp-md); }
+
+    .cert-heading {
+      display: flex; align-items: center; gap: var(--sp-sm);
+      margin-bottom: var(--sp-md);
+    }
+    .cert-seal {
+      width: 40px; height: 40px; border-radius: var(--r-sm);
+      background: var(--primary-light);
+      border: 0.5px solid var(--primary-border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .cert-heading-text { flex:1; }
+    .cert-heading-title {
+      font-size: 15px; font-weight: 700; color: var(--primary);
+      letter-spacing: -0.2px;
+    }
+    .cert-heading-sub {
+      font-size: 11px; color: var(--text-3); margin-top: 1px;
+    }
+    .cert-valid-badge {
+      display: flex; align-items: center; gap: 4px;
+      background: var(--green-light);
+      border-radius: var(--r-pill);
+      padding: 3px 10px;
+      font-size: 11px; font-weight: 500; color: var(--green);
+    }
+    .cert-valid-dot { width:5px; height:5px; border-radius:50%; background:var(--green); }
+
+    .cert-rows { display:flex; flex-direction:column; gap: 1px; }
+
+    .cert-row {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: var(--sp-sm); padding: 10px 0;
+      border-bottom: 0.5px solid var(--border-3);
+    }
+    .cert-row:last-child { border-bottom: none; }
+
+    .cert-row-label {
+      font-size: 12px; color: var(--text-3); flex-shrink:0; padding-top:1px;
+      min-width: 64px;
+    }
+    .cert-row-value {
+      font-size: 13px; font-weight: 500; color: var(--text-1);
+      text-align: right; word-break: break-all; line-height: 1.5;
+    }
+    .cert-row-value.mono {
+      font-size: 11px; font-family: 'SF Mono', 'Menlo', monospace;
+      color: var(--text-2);
+    }
+    .cert-row-value .tag {
+      display: inline-block;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: var(--r-pill);
+      padding: 1px 8px;
+      font-size: 11px; font-weight: 500;
+    }
+    .cert-row-value .tag.green {
+      background: var(--green-light); color: var(--green);
+    }
+
+    .cert-footer {
+      margin-top: var(--sp-md);
+      background: var(--bg-2);
+      border-radius: var(--r-sm);
+      padding: 10px var(--sp-sm);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .cert-footer-icon { font-size: 14px; }
+    .cert-footer-text {
+      font-size: 11px; color: var(--text-3); line-height: 1.5;
+    }
+
+    /* ============================================================
+       Rights / Owner section
+       ============================================================ */
+    .rights-row {
+      display: flex; align-items: center;
+      padding: var(--sp-sm) var(--sp-md);
+      gap: var(--sp-sm);
+    }
+
+    .avatar {
+      width: 40px; height: 40px;
+      border-radius: var(--r-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink:0;
+      background: var(--bg-2);
+      border: 0.5px solid var(--border-1);
+    }
+
+    .rights-info { flex:1; }
+    .rights-name { font-size: 14px; font-weight: 600; color: var(--text-1); }
+    .rights-handle { font-size: 12px; color: var(--text-3); margin-top:1px; }
+
+    .rights-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 11px; font-weight: 500;
+      border-radius: var(--r-pill); padding: 3px 9px;
+      flex-shrink: 0;
+    }
+    .rights-badge.creator {
+      background: var(--primary-light); color: var(--primary);
+    }
+    .rights-badge.owner {
+      background: var(--orange-light); color: var(--orange);
+    }
+
+    /* ============================================================
+       License type block
+       ============================================================ */
+    .license-block {
+      margin: 0 var(--sp-md) var(--sp-md);
+      background: var(--primary-light);
+      border: 0.5px solid var(--primary-border);
+      border-radius: var(--r-md);
+      padding: var(--sp-sm) var(--sp-md);
+    }
+    .license-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .license-type {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 14px; font-weight: 600; color: var(--primary);
+    }
+    .license-icon { font-size: 16px; }
+    .license-price {
+      font-size: 18px; font-weight: 700; color: var(--primary);
+      letter-spacing: -0.5px;
+    }
+    .license-price small { font-size: 11px; font-weight: 400; color: var(--text-3); }
+    .license-desc {
+      font-size: 12px; color: var(--text-2); line-height: 1.6;
+    }
+
+    /* ============================================================
+       Tab Bar
+       ============================================================ */
+    .tab-bar {
+      display: flex;
+      margin: var(--sp-sm) var(--sp-sm) 0;
+      background: var(--bg-1);
+      border-radius: var(--r-md) var(--r-md) 0 0;
+      padding: 0 var(--sp-sm);
+      border-bottom: 0.5px solid var(--border-3);
+      gap: var(--sp-xs);
+    }
+
+    .tab-item {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 2px;
+      padding: var(--sp-sm) 0 10px;
+      cursor: pointer; position: relative;
+      font-size: 13px; font-weight: 500; color: var(--text-3);
+      transition: color .2s;
+    }
+    .tab-item.active { color: var(--primary); }
+    .tab-item.active::after {
+      content: '';
+      position: absolute; bottom: 0; left: 20%; right: 20%;
+      height: 2.5px; background: var(--primary);
+      border-radius: 100px;
+    }
+    .tab-badge {
+      font-size: 10px; background: var(--bg-2);
+      border-radius: var(--r-pill); padding: 1px 6px;
+      color: var(--text-3);
+    }
+    .tab-item.active .tab-badge {
+      background: var(--primary-light); color: var(--primary);
+    }
+
+    .tab-content {
+      background: var(--bg-1);
+      margin: 0 var(--sp-sm);
+      border-radius: 0 0 var(--r-lg) var(--r-lg);
+    }
+
+    /* Tab panels */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ──── Panel: 引用记录 ──── */
+    .post-ref-item {
+      display: flex; align-items: center;
+      padding: var(--sp-sm) var(--sp-md);
+      gap: var(--sp-sm);
+      border-bottom: 0.5px solid var(--border-3);
+    }
+    .post-ref-item:last-child { border-bottom: none; padding-bottom: var(--sp-md); }
+
+    .post-thumb {
+      width: 52px; height: 52px;
+      border-radius: var(--r-sm); flex-shrink: 0;
+      background: var(--bg-3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+    }
+
+    .post-info { flex:1; }
+    .post-title { font-size: 13px; font-weight: 500; color: var(--text-1); margin-bottom:2px; }
+    .post-meta  { font-size: 11px; color: var(--text-3); display:flex; align-items:center; gap:4px; }
+    .post-meta-sep { color: var(--border-1); }
+
+    .post-likes {
+      display: flex; align-items: center; gap:3px;
+      font-size: 11px; color: var(--text-3);
+    }
+    .post-likes svg { width:13px; height:13px; fill:var(--text-3); }
+
+    /* ──── Panel: 相似检测 ──── */
+    .detect-header {
+      padding: var(--sp-md);
+      display: flex; align-items: center; gap: var(--sp-sm);
+    }
+    .detect-status-icon {
+      width: 40px; height: 40px; border-radius: var(--r-sm);
+      background: var(--green-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink:0;
+    }
+    .detect-status-text { flex:1; }
+    .detect-status-title { font-size: 14px; font-weight: 600; color: var(--green); }
+    .detect-status-sub { font-size: 12px; color: var(--text-3); margin-top:1px; }
+    .detect-scan-time { font-size: 11px; color: var(--text-3); text-align:right; flex-shrink:0; }
+
+    .detect-stats {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1px; background: var(--border-3);
+      margin: 0 var(--sp-md) var(--sp-md);
+      border-radius: var(--r-sm); overflow:hidden;
+    }
+    .detect-stat {
+      background: var(--bg-2);
+      padding: var(--sp-sm); text-align:center;
+    }
+    .detect-stat-num { font-size: 20px; font-weight: 700; letter-spacing:-0.5px; }
+    .detect-stat-num.safe   { color: var(--green); }
+    .detect-stat-num.warn   { color: var(--orange); }
+    .detect-stat-num.danger { color: var(--red); }
+    .detect-stat-lbl { font-size: 10px; color: var(--text-3); margin-top:1px; }
+
+    .detect-result-item {
+      display: flex; align-items: center;
+      padding: var(--sp-sm) var(--sp-md);
+      gap: var(--sp-sm);
+      border-top: 0.5px solid var(--border-3);
+    }
+    .detect-thumb {
+      width: 48px; height: 48px;
+      border-radius: var(--r-xs); flex-shrink:0;
+      background: var(--bg-3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+    }
+    .detect-info { flex:1; }
+    .detect-platform { font-size: 11px; color: var(--text-3); margin-bottom:2px; }
+    .detect-title { font-size: 13px; font-weight: 500; color: var(--text-1); margin-bottom:3px; }
+    .similarity-bar-wrap { display:flex; align-items:center; gap:6px; }
+    .similarity-bar-bg {
+      flex:1; height:4px; background: var(--bg-3); border-radius:100px; overflow:hidden;
+    }
+    .similarity-bar-fill {
+      height:100%; border-radius:100px;
+      background: var(--orange);
+      transition: width .5s ease;
+    }
+    .similarity-pct { font-size: 11px; font-weight: 600; color: var(--orange); flex-shrink:0; }
+    .detect-action {
+      font-size: 11px; font-weight: 500; color: var(--primary);
+      flex-shrink:0;
+    }
+
+    /* ──── Panel: 作品日志 ──── */
+    .log-timeline { padding: var(--sp-md) var(--sp-md) var(--sp-md) var(--sp-sm); position:relative; }
+    .log-timeline::before {
+      content:''; position:absolute;
+      left: calc(var(--sp-sm) + 18px); top: var(--sp-xl);
+      bottom: var(--sp-md); width: 0.5px;
+      background: var(--border-1);
+    }
+
+    .log-item {
+      display: flex; gap: var(--sp-sm); margin-bottom: var(--sp-md);
+    }
+    .log-item:last-child { margin-bottom:0; }
+
+    .log-icon-wrap {
+      width:36px; height:36px; border-radius:var(--r-sm);
+      flex-shrink:0; position:relative; z-index:1;
+      display:flex; align-items:center; justify-content:center;
+      font-size:17px;
+    }
+    .log-icon-wrap.create  { background:var(--primary-light); }
+    .log-icon-wrap.trade   { background:var(--orange-light); }
+    .log-icon-wrap.license { background:var(--green-light); }
+    .log-icon-wrap.alert   { background:var(--red-light); }
+
+    .log-body { flex:1; padding-top:2px; }
+    .log-time { font-size:11px; color:var(--text-3); margin-bottom:2px; }
+    .log-title { font-size:13px; font-weight:600; color:var(--text-1); margin-bottom:2px; }
+    .log-desc  { font-size:12px; color:var(--text-3); line-height:1.5; }
+    .log-hash  {
+      margin-top:5px; display:inline-block;
+      font-size:10px; font-family:'SF Mono','Menlo',monospace;
+      color:var(--text-3); background:var(--bg-2);
+      border-radius:var(--r-xs); padding:2px 7px;
+    }
+
+    /* ============================================================
+       Bottom Action Bar
+       ============================================================ */
+    .bottom-bar {
+      position: fixed; bottom:0; left:50%; transform:translateX(-50%);
+      width: 100%; max-width:390px;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(20px) saturate(1.8);
+      -webkit-backdrop-filter: blur(20px) saturate(1.8);
+      border-top: 0.5px solid var(--border-3);
+      padding: var(--sp-sm) var(--sp-md) 0;
+    }
+
+    .bar-actions {
+      display: flex; gap: var(--sp-sm);
+    }
+
+    .bar-btn {
+      flex: 1; display:flex; align-items:center; justify-content:center;
+      gap:6px; border-radius: var(--r-sm);
+      padding: 11px 0;
+      font-size: 15px; font-weight: 500; font-family: var(--font);
+      border: none; cursor:pointer;
+      transition: transform .12s, opacity .2s;
+    }
+    .bar-btn:active { transform: scale(.96); }
+    .bar-btn svg { width:17px; height:17px; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+
+    .bar-btn-outline {
+      background: var(--bg-2);
+      color: var(--text-1); border: 0.5px solid var(--border-1);
+    }
+    .bar-btn-outline svg { stroke: var(--text-2); }
+
+    .bar-btn-solid {
+      background: var(--primary); color: #fff;
+      flex: 1.4;
+    }
+    .bar-btn-solid svg { stroke: #fff; }
+    .bar-btn-solid:hover { opacity:.88; }
+
+    .home-indicator {
+      width: 120px; height: 5px;
+      background: rgba(0,0,0,0.16); border-radius:100px;
+      margin: 10px auto 10px;
+    }
+
+    /* ============================================================
+       Misc helpers
+       ============================================================ */
+    .section-gap { height: var(--sp-sm); }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── NAV BAR ─────────────────────────────────────── -->
+  <div class="nav-bar">
+    <div class="nav-btn">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+    <div class="nav-title">Token 详情</div>
+    <div class="nav-right">
+      <div class="nav-btn">
+        <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="19" r="2"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </div>
+      <div class="nav-btn">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="19" r="1.5" fill="currentColor"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HERO ARTWORK ────────────────────────────────── -->
+  <div class="hero">
+    <div class="hero-img">
+      <div class="artwork-placeholder">
+        <div class="art-char">🧚</div>
+      </div>
+      <div class="cert-stamp">
+        <div class="stamp-dot"></div>
+        <span class="stamp-text">已存证 · 临界认证</span>
+      </div>
+      <div class="edition-badge">
+        版本 <strong>#001</strong> / 1
+      </div>
+    </div>
+  </div>
+
+  <!-- Title block (merges with hero) -->
+  <div class="title-block">
+    <div class="title-row">
+      <div class="title-main">小精灵·晴天ver.</div>
+      <div class="like-btn">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+    </div>
+    <div class="title-sub">
+      <span>@MoriSky</span>
+      <span class="title-sub-sep">·</span>
+      <span>2024年3月15日首发</span>
+    </div>
+  </div>
+
+  <!-- ── CERTIFICATE CARD ────────────────────────────── -->
+  <div class="cert-card">
+    <div class="cert-top-bar"></div>
+    <div class="cert-body">
+      <div class="cert-heading">
+        <div class="cert-seal">🏛️</div>
+        <div class="cert-heading-text">
+          <div class="cert-heading-title">临界存证证书</div>
+          <div class="cert-heading-sub">Blockchain Certification · LINJI</div>
+        </div>
+        <div class="cert-valid-badge">
+          <div class="cert-valid-dot"></div>
+          有效
+        </div>
+      </div>
+
+      <div class="cert-rows">
+        <div class="cert-row">
+          <div class="cert-row-label">存证编号</div>
+          <div class="cert-row-value mono">LJ-2024-0315-7C66FF</div>
+        </div>
+        <div class="cert-row">
+          <div class="cert-row-label">首发时间</div>
+          <div class="cert-row-value">2024-03-15 &nbsp;14:32:07 CST</div>
+        </div>
+        <div class="cert-row">
+          <div class="cert-row-label">区块哈希</div>
+          <div class="cert-row-value mono">0x7c66ff…3a2b9d</div>
+        </div>
+        <div class="cert-row">
+          <div class="cert-row-label">存证方式</div>
+          <div class="cert-row-value"><span class="tag">可信时间戳</span></div>
+        </div>
+        <div class="cert-row">
+          <div class="cert-row-label">作品类型</div>
+          <div class="cert-row-value"><span class="tag">原创插画</span></div>
+        </div>
+        <div class="cert-row">
+          <div class="cert-row-label">授权类型</div>
+          <div class="cert-row-value"><span class="tag green">商用授权</span></div>
+        </div>
+      </div>
+
+      <div class="cert-footer">
+        <div class="cert-footer-icon">🔒</div>
+        <div class="cert-footer-text">此证书由临界平台通过可信时间戳技术生成，记录于区块链，内容不可篡改，可作为圈内权属凭证使用。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHTS SECTION ─────────────────────────────── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        <div class="card-title-icon" style="background:var(--primary-light);">👥</div>
+        权属关系
+      </div>
+    </div>
+    <div class="card-divider"></div>
+
+    <div class="rights-row">
+      <div class="avatar">🧑‍🎨</div>
+      <div class="rights-info">
+        <div class="rights-name">MoriSky</div>
+        <div class="rights-handle">@morisky · 关注了你</div>
+      </div>
+      <div class="rights-badge creator">✏️&nbsp;创作者</div>
+    </div>
+
+    <div class="card-divider"></div>
+
+    <div class="rights-row">
+      <div class="avatar">🐰</div>
+      <div class="rights-info">
+        <div class="rights-name">Jocelyn</div>
+        <div class="rights-handle">@jocelyn · 2024-06-01 购入</div>
+      </div>
+      <div class="rights-badge owner">🏠&nbsp;当前拥有者</div>
+    </div>
+
+    <div class="card-divider"></div>
+
+    <div style="padding:var(--sp-sm) var(--sp-md) var(--sp-md);">
+      <div class="license-block">
+        <div class="license-top">
+          <div class="license-type"><span class="license-icon">💼</span>商业授权</div>
+          <div class="license-price">¥ 299 <small>已购</small></div>
+        </div>
+        <div class="license-desc">
+          拥有者可将本作品用于商业用途，包括印刷品、周边商品、数字媒体等。署名权归原创作者 MoriSky，禁止转售授权、禁止 AI 训练。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TABS ───────────────────────────────────────── -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab(0)">
+      引用记录
+      <div class="tab-badge">8</div>
+    </div>
+    <div class="tab-item" onclick="switchTab(1)">
+      相似检测
+      <div class="tab-badge">3</div>
+    </div>
+    <div class="tab-item" onclick="switchTab(2)">
+      作品日志
+      <div class="tab-badge">5</div>
+    </div>
+  </div>
+
+  <div class="tab-content">
+
+    <!-- Panel 0: 引用记录 -->
+    <div class="tab-panel active" id="panel-0">
+      <div style="height:var(--sp-sm)"></div>
+
+      <div class="post-ref-item">
+        <div class="post-thumb" style="background:linear-gradient(135deg,#edeaff,#f5f0ff);">🌸</div>
+        <div class="post-info">
+          <div class="post-title">安利一位超会画小精灵的画师！</div>
+          <div class="post-meta">
+            <span>@Yuki</span><span class="post-meta-sep">·</span><span>3天前</span>
+          </div>
+        </div>
+        <div class="post-likes">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l7.78 7.78 7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          1.2k
+        </div>
+      </div>
+
+      <div class="post-ref-item">
+        <div class="post-thumb" style="background:linear-gradient(135deg,#e8f4ff,#f0f8ff);">🎨</div>
+        <div class="post-info">
+          <div class="post-title">我的 2024 年度最爱原画合集</div>
+          <div class="post-meta">
+            <span>@Leo设计碎碎念</span><span class="post-meta-sep">·</span><span>1周前</span>
+          </div>
+        </div>
+        <div class="post-likes">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l7.78 7.78 7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          886
+        </div>
+      </div>
+
+      <div class="post-ref-item">
+        <div class="post-thumb" style="background:linear-gradient(135deg,#fff0f5,#fff5f8);">🌟</div>
+        <div class="post-info">
+          <div class="post-title">这个 IP 出周边我第一个冲！</div>
+          <div class="post-meta">
+            <span>@NanaDesign</span><span class="post-meta-sep">·</span><span>2周前</span>
+          </div>
+        </div>
+        <div class="post-likes">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l7.78 7.78 7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          342
+        </div>
+      </div>
+
+      <div style="padding:10px var(--sp-md) var(--sp-md); text-align:center;">
+        <span style="font-size:12px; color:var(--primary); font-weight:500;">查看全部 8 条引用 →</span>
+      </div>
+    </div>
+
+    <!-- Panel 1: 相似检测 -->
+    <div class="tab-panel" id="panel-1">
+
+      <div class="detect-header">
+        <div class="detect-status-icon">🛡️</div>
+        <div class="detect-status-text">
+          <div class="detect-status-title">检测到 3 处疑似引用</div>
+          <div class="detect-status-sub">未发现明确侵权行为</div>
+        </div>
+        <div class="detect-scan-time">3小时前<br>已扫描</div>
+      </div>
+
+      <div class="detect-stats" style="margin:0 var(--sp-md) var(--sp-md);">
+        <div class="detect-stat">
+          <div class="detect-stat-num safe">24</div>
+          <div class="detect-stat-lbl">已扫描平台</div>
+        </div>
+        <div class="detect-stat">
+          <div class="detect-stat-num warn">3</div>
+          <div class="detect-stat-lbl">疑似引用</div>
+        </div>
+        <div class="detect-stat">
+          <div class="detect-stat-num danger">0</div>
+          <div class="detect-stat-lbl">确认侵权</div>
+        </div>
+      </div>
+
+      <div class="detect-result-item">
+        <div class="detect-thumb">🖼️</div>
+        <div class="detect-info">
+          <div class="detect-platform">小红书 · 2小时前上传</div>
+          <div class="detect-title">精灵系列周边设计稿</div>
+          <div class="similarity-bar-wrap">
+            <div class="similarity-bar-bg">
+              <div class="similarity-bar-fill" style="width:78%;"></div>
+            </div>
+            <div class="similarity-pct">78%</div>
+          </div>
+        </div>
+        <div class="detect-action">查看对比</div>
+      </div>
+
+      <div class="detect-result-item">
+        <div class="detect-thumb">🎭</div>
+        <div class="detect-info">
+          <div class="detect-platform">微博 · 5天前上传</div>
+          <div class="detect-title">同人创作 · 春日精灵</div>
+          <div class="similarity-bar-wrap">
+            <div class="similarity-bar-bg">
+              <div class="similarity-bar-fill" style="width:62%; background:var(--text-3);"></div>
+            </div>
+            <div class="similarity-pct" style="color:var(--text-3);">62%</div>
+          </div>
+        </div>
+        <div class="detect-action">查看对比</div>
+      </div>
+
+      <div style="padding:var(--sp-md);">
+        <div style="background:var(--orange-light); border-radius:var(--r-md); padding:var(--sp-sm) var(--sp-md); font-size:12px; color:var(--orange); line-height:1.6;">
+          ⚠️ 小红书上的「精灵系列周边」相似度较高，建议查看对比图，若确认侵权可一键生成证据包投诉。
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: 作品日志 -->
+    <div class="tab-panel" id="panel-2">
+      <div class="log-timeline">
+
+        <div class="log-item">
+          <div class="log-icon-wrap license">🔑</div>
+          <div class="log-body">
+            <div class="log-time">2024-06-01 &nbsp;10:21</div>
+            <div class="log-title">商用授权购买</div>
+            <div class="log-desc">@Jocelyn 以 ¥299 购买商业授权，成为当前拥有者</div>
+            <span class="log-hash">tx: 0xa3b2…f19c</span>
+          </div>
+        </div>
+
+        <div class="log-item">
+          <div class="log-icon-wrap license">📋</div>
+          <div class="log-body">
+            <div class="log-time">2024-05-20 &nbsp;16:44</div>
+            <div class="log-title">授权类型变更</div>
+            <div class="log-desc">创作者将授权从「自用」升级为「商用授权」</div>
+          </div>
+        </div>
+
+        <div class="log-item">
+          <div class="log-icon-wrap alert">🔔</div>
+          <div class="log-body">
+            <div class="log-time">2024-04-10 &nbsp;09:03</div>
+            <div class="log-title">相似作品预警</div>
+            <div class="log-desc">检测到某站点疑似盗用图片，已通知创作者，已处理完毕</div>
+          </div>
+        </div>
+
+        <div class="log-item">
+          <div class="log-icon-wrap trade">🎁</div>
+          <div class="log-body">
+            <div class="log-time">2024-03-20 &nbsp;22:18</div>
+            <div class="log-title">限量版发行</div>
+            <div class="log-desc">创作者将此 Token 设为「限量1份」并开放购买</div>
+          </div>
+        </div>
+
+        <div class="log-item">
+          <div class="log-icon-wrap create">✨</div>
+          <div class="log-body">
+            <div class="log-time">2024-03-15 &nbsp;14:32</div>
+            <div class="log-title">Token 创建 · 首次存证</div>
+            <div class="log-desc">@MoriSky 发布作品，完成首次区块链存证，时间戳不可篡改</div>
+            <span class="log-hash">block: LJ-2024-0315-7C66FF</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /tab-content -->
+
+  <div class="section-gap"></div>
+
+</div><!-- /page -->
+
+<!-- ── BOTTOM ACTION BAR ────────────────────────── -->
+<div class="bottom-bar">
+  <div class="bar-actions">
+    <button class="bar-btn bar-btn-outline">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+      生成证据包
+    </button>
+    <button class="bar-btn bar-btn-solid">
+      <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      维权 / 一键投诉
+    </button>
+  </div>
+  <div class="home-indicator"></div>
+</div>
+
+<script>
+  function switchTab(idx) {
+    document.querySelectorAll('.tab-item').forEach((t,i) => t.classList.toggle('active', i===idx));
+    document.querySelectorAll('.tab-panel').forEach((p,i) => p.classList.toggle('active', i===idx));
+  }
+</script>
+</body>
+</html>
