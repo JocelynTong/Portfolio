@@ -56,6 +56,7 @@ body{
   transition:transform .38s cubic-bezier(.4,0,.2,1), opacity .38s;
   will-change:transform;
   -webkit-overflow-scrolling:touch;
+  touch-action: pan-y;
 }
 .screen.hidden       { transform:translateX(100%);  pointer-events:none; }
 .screen.hidden-left  { transform:translateX(-28%); opacity:.6; pointer-events:none; }
@@ -887,44 +888,44 @@ body{
     <!-- ── 帖子 Tab ── -->
     <div class="tab-panel-content active" id="tab-posts">
       <div class="post-grid">
-        <a class="post-cell" href="post-detail.html" style="background:linear-gradient(145deg,#2a1f6e,#7c66ff);">
+        <a class="post-cell" href="post-detail.html" onclick="location.href='post-detail.html';return false;" style="background:linear-gradient(145deg,#2a1f6e,#7c66ff);">
           🧚
           <div class="cell-badge protected">
             <svg viewBox="0 0 12 12"><path d="M6 11s4-2 4-5V2.5L6 1 2 2.5V6c0 3 4 5 4 5z"/></svg>
             已存证
           </div>
         </a>
-        <a class="post-cell" href="post-detail.html" style="background:linear-gradient(145deg,#1e3a5f,#4477cc);">
+        <a class="post-cell" href="post-detail.html" onclick="location.href='post-detail.html';return false;" style="background:linear-gradient(145deg,#1e3a5f,#4477cc);">
           🌙
           <div class="cell-badge unprotected">⚠️ 未保护</div>
         </a>
-        <a class="post-cell" href="post-detail.html" style="background:linear-gradient(145deg,#3d1a4e,#9944cc);">
+        <a class="post-cell" href="post-detail.html" onclick="location.href='post-detail.html';return false;" style="background:linear-gradient(145deg,#3d1a4e,#9944cc);">
           🦋
           <div class="cell-badge protected">
             <svg viewBox="0 0 12 12"><path d="M6 11s4-2 4-5V2.5L6 1 2 2.5V6c0 3 4 5 4 5z"/></svg>
             已存证
           </div>
         </a>
-        <a class="post-cell" href="post-detail.html" style="background:linear-gradient(145deg,#1a3a2e,#2d8a6e);">
+        <a class="post-cell" href="post-detail.html" onclick="location.href='post-detail.html';return false;" style="background:linear-gradient(145deg,#1a3a2e,#2d8a6e);">
           🌿
           <div class="cell-badge unprotected">⚠️ 未保护</div>
         </a>
-        <a class="post-cell" href="post-detail.html" style="background:linear-gradient(145deg,#3a1a1a,#cc4444);">
+        <a class="post-cell" href="post-detail.html" onclick="location.href='post-detail.html';return false;" style="background:linear-gradient(145deg,#3a1a1a,#cc4444);">
           🔮
           <div class="cell-badge unprotected">⚠️ 未保护</div>
         </a>
-        <a class="post-cell" href="post-detail.html" style="background:linear-gradient(145deg,#1a2a3a,#447799);">
+        <a class="post-cell" href="post-detail.html" onclick="location.href='post-detail.html';return false;" style="background:linear-gradient(145deg,#1a2a3a,#447799);">
           ⭐
           <div class="cell-badge protected">
             <svg viewBox="0 0 12 12"><path d="M6 11s4-2 4-5V2.5L6 1 2 2.5V6c0 3 4 5 4 5z"/></svg>
             已存证
           </div>
         </a>
-        <a class="post-cell" href="post-detail.html" style="background:linear-gradient(145deg,#2e1a0e,#c06020);">
+        <a class="post-cell" href="post-detail.html" onclick="location.href='post-detail.html';return false;" style="background:linear-gradient(145deg,#2e1a0e,#c06020);">
           🌸
           <div class="cell-badge unprotected">⚠️ 未保护</div>
         </a>
-        <a class="post-cell" href="post-detail.html" style="background:linear-gradient(145deg,#0e2e1a,#20a060);">
+        <a class="post-cell" href="post-detail.html" onclick="location.href='post-detail.html';return false;" style="background:linear-gradient(145deg,#0e2e1a,#20a060);">
           🐉
           <div class="cell-badge protected">
             <svg viewBox="0 0 12 12"><path d="M6 11s4-2 4-5V2.5L6 1 2 2.5V6c0 3 4 5 4 5z"/></svg>
@@ -939,7 +940,7 @@ body{
       <div class="token-list">
 
         <!-- Token 1 — 已存证 商用授权 挂单中 -->
-        <a class="token-card" href="token-detail.html">
+        <a class="token-card" href="token-detail.html" onclick="location.href='token-detail.html';return false;">
           <div class="token-card-strip"></div>
           <div class="token-card-inner">
             <div class="token-thumb" style="background:linear-gradient(145deg,#2a1f6e,#7c66ff);">
@@ -977,7 +978,7 @@ body{
         </a>
 
         <!-- Token 2 — 已存证 无料 -->
-        <a class="token-card" href="token-detail.html">
+        <a class="token-card" href="token-detail.html" onclick="location.href='token-detail.html';return false;">
           <div class="token-card-strip"></div>
           <div class="token-card-inner">
             <div class="token-thumb" style="background:linear-gradient(145deg,#3d1a4e,#9944cc);">
@@ -1014,7 +1015,7 @@ body{
         </a>
 
         <!-- Token 3 — 已存证 买断 -->
-        <a class="token-card" href="token-detail.html">
+        <a class="token-card" href="token-detail.html" onclick="location.href='token-detail.html';return false;">
           <div class="token-card-strip"></div>
           <div class="token-card-inner">
             <div class="token-thumb" style="background:linear-gradient(145deg,#0e2e1a,#20a060);">
