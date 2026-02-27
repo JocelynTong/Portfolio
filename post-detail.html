@@ -54,30 +54,28 @@
     }
     @media (min-width: 600px) { body { max-width: 390px; } }
 
-    .page { padding-bottom: 80px; }
+    .page { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
 
     /* ============================================================
-       Nav Bar
+       Image Section & Nav Overlay (XHS 大图沉浸风格)
        ============================================================ */
-    .nav-bar {
-      position: sticky; top: 0; z-index: 100;
+    .img-section { position: relative; }
+
+    .nav-overlay {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 100;
       height: calc(52px + env(safe-area-inset-top, 0px));
       display: flex; align-items: center; justify-content: space-between;
       padding: env(safe-area-inset-top, 0px) var(--sp-sm) 0;
-      background: rgba(255,255,255,0.88);
-      backdrop-filter: blur(20px) saturate(1.8);
-      -webkit-backdrop-filter: blur(20px) saturate(1.8);
-      border-bottom: 0.5px solid var(--border-3);
     }
-    .nav-btn {
-      width: 36px; height: 36px;
-      border-radius: var(--r-sm);
+    .nav-overlay-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(0,0,0,0.30);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
       display: flex; align-items: center; justify-content: center;
-      background: transparent; cursor: pointer;
+      cursor: pointer; text-decoration: none; flex-shrink: 0;
     }
-    .nav-btn svg { width:20px; height:20px; fill:none; stroke:var(--text-2); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
-    .nav-title { font-size: 15px; font-weight: 600; }
-    .nav-right { display: flex; gap: 0; }
+    .nav-overlay-btn svg { width:18px; height:18px; fill:none; stroke:rgba(255,255,255,0.92); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+    .nav-overlay-right { display: flex; gap: var(--sp-xs); }
 
     /* ============================================================
        Author Row
@@ -145,21 +143,18 @@
     }
 
     /* ============================================================
-       Image Carousel
+       Image Carousel — full-bleed (XHS 大图模式)
        ============================================================ */
     .img-carousel {
-      position: relative; overflow: hidden;
-      margin: 0 var(--sp-md) var(--sp-md);
-      border-radius: var(--r-lg);
+      position: relative; overflow: hidden; width: 100%;
     }
     .img-track {
       display: flex; transition: transform .35s cubic-bezier(.4,0,.2,1);
     }
     .img-slide {
-      min-width: 100%; aspect-ratio: 1/1;
+      min-width: 100%; aspect-ratio: 3/4;
       display: flex; align-items: center; justify-content: center;
-      font-size: 88px; user-select: none;
-      border-radius: var(--r-lg);
+      font-size: 120px; user-select: none;
       flex-shrink: 0;
     }
     .img-slide:nth-child(1) { background: linear-gradient(145deg,#2a1f6e,#7c66ff); }
@@ -281,17 +276,8 @@
     }
 
     /* ============================================================
-       Tags
+       Tags (inline in post body, using .topic class)
        ============================================================ */
-    .post-tags {
-      display: flex; flex-wrap: wrap; gap: var(--sp-xs);
-      padding: 0 var(--sp-md) var(--sp-md);
-    }
-    .post-tag {
-      font-size: 12px; color: var(--primary);
-      background: var(--primary-light);
-      border-radius: var(--r-pill); padding: 3px 12px;
-    }
 
     /* ============================================================
        Stats bar
@@ -514,18 +500,32 @@
 <body>
 <div class="page">
 
-  <!-- ── NAV ──────────────────────────────────────────── -->
-  <div class="nav-bar">
-    <a class="nav-btn" href="publish-flow.html" style="text-decoration:none;">
-      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-    </a>
-    <div class="nav-title">Post</div>
-    <div class="nav-right">
-      <div class="nav-btn">
-        <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="19" r="2"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+  <!-- ── IMAGE SECTION (full-bleed + nav overlay) ────── -->
+  <div class="img-section">
+    <div class="img-carousel" id="carousel">
+      <div class="img-track" id="img-track">
+        <div class="img-slide">🧚</div>
+        <div class="img-slide">🎨</div>
+        <div class="img-slide">✏️</div>
       </div>
-      <div class="nav-btn">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="19" r="1.5" fill="currentColor"/></svg>
+      <div class="img-dots" id="img-dots">
+        <div class="img-dot active" onclick="goSlide(0)"></div>
+        <div class="img-dot" onclick="goSlide(1)"></div>
+        <div class="img-dot" onclick="goSlide(2)"></div>
+      </div>
+      <div class="img-count" id="img-count">1 / 3</div>
+    </div>
+    <div class="nav-overlay">
+      <a class="nav-overlay-btn" href="publish-flow.html">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </a>
+      <div class="nav-overlay-right">
+        <div class="nav-overlay-btn">
+          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="19" r="2"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </div>
+        <div class="nav-overlay-btn">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="white"/><circle cx="12" cy="12" r="1.5" fill="white"/><circle cx="12" cy="19" r="1.5" fill="white"/></svg>
+        </div>
       </div>
     </div>
   </div>
@@ -556,28 +556,15 @@
     小精灵·晴天 ver. 完整绘制过程 🧚
   </div>
 
-  <!-- ── POST BODY ─────────────────────────────────────── -->
+  <!-- ── POST BODY (tags inline at end, XHS 风格) ─────── -->
   <div class="post-body">
     最近花了两周终于画完了这只小精灵，分享一下完整的绘制过程和一些心得。
     <br><br>
     底稿阶段先确定了动态和姿势，精灵翅膀的透明感处理了很久，最后用叠加图层+散景模糊解决了。颜色方案选了暖黄+冷紫的互补色，想表达晴天午后那种光感。
     <br><br>
-    <span class="topic">#原创插画</span> <span class="topic">#临界存证</span> 这次发布前我把原稿存证了，用了 Token 功能，以后有人盗图直接甩证据包 😤
-  </div>
-
-  <!-- ── IMAGE CAROUSEL ────────────────────────────────── -->
-  <div class="img-carousel" id="carousel">
-    <div class="img-track" id="img-track">
-      <div class="img-slide">🧚</div>
-      <div class="img-slide">🎨</div>
-      <div class="img-slide">✏️</div>
-    </div>
-    <div class="img-dots" id="img-dots">
-      <div class="img-dot active" onclick="goSlide(0)"></div>
-      <div class="img-dot" onclick="goSlide(1)"></div>
-      <div class="img-dot" onclick="goSlide(2)"></div>
-    </div>
-    <div class="img-count" id="img-count">1 / 3</div>
+    这次发布前我把原稿存证了，用了 Token 功能，以后有人盗图直接甩证据包 😤
+    <br><br>
+    <span class="topic">#原创插画</span>&ensp;<span class="topic">#数字绘画</span>&ensp;<span class="topic">#临界存证</span>&ensp;<span class="topic">#设计</span>&ensp;<span class="topic">#IP创作</span>
   </div>
 
   <!-- ── TOKEN CITATION CARD ──────────────────────────── -->
@@ -620,15 +607,6 @@
         <div class="token-cite-footer-right">查看房产证 →</div>
       </div>
     </a>
-  </div>
-
-  <!-- ── TAGS ──────────────────────────────────────────── -->
-  <div class="post-tags">
-    <span class="post-tag">#原创插画</span>
-    <span class="post-tag">#数字绘画</span>
-    <span class="post-tag">#临界存证</span>
-    <span class="post-tag">#设计</span>
-    <span class="post-tag">#IP创作</span>
   </div>
 
   <!-- ── STATS BAR ─────────────────────────────────────── -->
