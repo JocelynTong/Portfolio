@@ -1,153 +1,788 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人作品集 | UI/UX Designer</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Swiper CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css">
-    <!-- AOS CSS -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Jocelyn Tong — Portfolio</title>
+  <style>
+    /* ============================================================
+       Design Tokens — extracted from 原子分子组件库 💙
+       ============================================================ */
+    :root {
+      /* Colors */
+      --primary:            #7c66ff;
+      --primary-light:      rgba(124,102,255,0.08);
+      --primary-mid:        rgba(124,102,255,0.16);
+      --primary-border:     rgba(124,102,255,0.32);
+      --bg-1:               #ffffff;
+      --bg-2:               #f5f5fa;
+      --bg-3:               #ededf6;
+      --text-1:             #000000;
+      --text-2:             rgba(0,0,0,0.64);
+      --text-3:             rgba(0,0,0,0.40);
+      --border-1:           rgba(0,0,0,0.12);
+      --border-3:           rgba(0,0,0,0.04);
+      --icon-2:             #625e76;
+
+      /* Spacing */
+      --sp-xs:  4px;
+      --sp-sm:  8px;
+      --sp-md:  16px;
+      --sp-lg:  24px;
+      --sp-xl:  32px;
+      --sp-2xl: 48px;
+
+      /* Radius */
+      --r-sm:  8px;
+      --r-md:  12px;
+      --r-lg:  16px;
+      --r-xl:  24px;
+      --r-pill: 100px;
+
+      /* Typography */
+      --font: 'PingFang SC', -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    }
+
+    /* ============================================================
+       Reset & Base
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-1);
+      color: var(--text-1);
+      -webkit-font-smoothing: antialiased;
+      overscroll-behavior: none;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* ============================================================
+       Top Navigation
+       ============================================================ */
+    .top-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 var(--sp-md);
+      background: rgba(255,255,255,0.80);
+      backdrop-filter: blur(24px) saturate(1.8);
+      -webkit-backdrop-filter: blur(24px) saturate(1.8);
+      border-bottom: 0.5px solid var(--border-3);
+    }
+
+    .top-nav-logo {
+      font-size: 16px; font-weight: 600; letter-spacing: -0.3px;
+    }
+    .top-nav-logo span { color: var(--primary); }
+
+    .top-nav-links {
+      display: flex; gap: var(--sp-md); list-style: none;
+    }
+    .top-nav-links a {
+      font-size: 14px; font-weight: 400; color: var(--text-2);
+      transition: color .2s;
+    }
+    .top-nav-links a:hover { color: var(--primary); }
+
+    @media (max-width: 600px) { .top-nav-links { display: none; } }
+
+    /* ============================================================
+       Layout
+       ============================================================ */
+    main { padding-top: 56px; }
+
+    .section {
+      max-width: 480px; margin: 0 auto;
+      padding: var(--sp-2xl) var(--sp-md);
+    }
+
+    .divider {
+      height: 0.5px; background: var(--border-3);
+      margin: 0 var(--sp-md);
+    }
+
+    /* ============================================================
+       Typography helpers
+       ============================================================ */
+    .label {
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 1.6px; text-transform: uppercase;
+      color: var(--primary); margin-bottom: var(--sp-sm);
+    }
+
+    .heading {
+      font-size: 26px; font-weight: 700;
+      letter-spacing: -0.6px; line-height: 1.25;
+      color: var(--text-1); margin-bottom: var(--sp-md);
+    }
+
+    .body-text {
+      font-size: 15px; font-weight: 400;
+      color: var(--text-2); line-height: 1.75;
+    }
+
+    /* ============================================================
+       HERO
+       ============================================================ */
+    .hero {
+      min-height: 100dvh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: calc(var(--sp-2xl) + 56px) var(--sp-md) var(--sp-2xl);
+      max-width: 480px; margin: 0 auto;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--primary-light);
+      border: 0.5px solid var(--primary-border);
+      border-radius: var(--r-pill);
+      padding: 5px 14px;
+      font-size: 12px; font-weight: 500; color: var(--primary);
+      width: fit-content; margin-bottom: var(--sp-lg);
+      animation: fadeUp .5s ease both;
+    }
+
+    .badge-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--primary);
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+
+    .hero-title {
+      font-size: clamp(38px, 10vw, 56px);
+      font-weight: 700; letter-spacing: -1.5px; line-height: 1.1;
+      color: var(--text-1); margin-bottom: var(--sp-md);
+      animation: fadeUp .5s ease .1s both;
+    }
+    .hero-title .hl { color: var(--primary); }
+
+    .hero-sub {
+      font-size: 16px; color: var(--text-2); line-height: 1.7;
+      margin-bottom: var(--sp-xl);
+      animation: fadeUp .5s ease .2s both;
+    }
+
+    .hero-actions {
+      display: flex; gap: var(--sp-sm); flex-wrap: wrap;
+      animation: fadeUp .5s ease .3s both;
+    }
+
+    .hero-scroll {
+      margin-top: var(--sp-2xl);
+      display: flex; align-items: center; gap: var(--sp-sm);
+      font-size: 11px; color: var(--text-3);
+      animation: fadeUp .5s ease .4s both;
+    }
+    .hero-scroll-line {
+      width: 28px; height: 0.5px; background: var(--text-3);
+    }
+
+    /* ============================================================
+       Buttons (matching 00.08_Button from Figma)
+       ============================================================ */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      border-radius: var(--r-sm); padding: 10px 20px;
+      font-size: 15px; font-weight: 500; font-family: var(--font);
+      border: none; cursor: pointer;
+      transition: transform .12s, opacity .2s;
+    }
+    .btn:active { transform: scale(.96); }
+
+    .btn-solid {
+      background: var(--primary); color: #fff;
+    }
+    .btn-solid:hover { opacity: .88; }
+
+    .btn-outline {
+      background: transparent; color: var(--text-1);
+      border: 0.5px solid var(--border-1);
+    }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* ============================================================
+       Stats row
+       ============================================================ */
+    .stats {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: var(--sp-sm); margin-bottom: var(--sp-xl);
+    }
+    .stat-card {
+      background: var(--bg-2); border-radius: var(--r-md);
+      padding: var(--sp-md); text-align: center;
+    }
+    .stat-num {
+      font-size: 30px; font-weight: 700;
+      letter-spacing: -1px; color: var(--primary);
+    }
+    .stat-lbl {
+      font-size: 11px; color: var(--text-3); margin-top: 2px;
+    }
+
+    /* ============================================================
+       Skills chips (matching tag components)
+       ============================================================ */
+    .chips {
+      display: flex; flex-wrap: wrap; gap: var(--sp-xs);
+      margin-top: var(--sp-md);
+    }
+    .chip {
+      font-size: 13px; font-weight: 400;
+      border-radius: var(--r-pill); padding: 5px 14px;
+      background: var(--bg-2); color: var(--text-2);
+      transition: background .2s, color .2s;
+    }
+    .chip.accent {
+      background: var(--primary-light); color: var(--primary);
+    }
+
+    /* ============================================================
+       Project cards (matching 03.14_Grid / popup cards)
+       ============================================================ */
+    .projects-list {
+      display: flex; flex-direction: column; gap: var(--sp-sm);
+      margin-top: var(--sp-md);
+    }
+
+    .proj-card {
+      background: var(--bg-1);
+      border: 0.5px solid var(--border-1);
+      border-radius: var(--r-lg);
+      overflow: hidden; display: block;
+      transition: transform .18s, box-shadow .18s;
+    }
+    .proj-card:active { transform: scale(.98); }
+    .proj-card:hover {
+      box-shadow: 0 8px 32px rgba(124,102,255,0.10);
+    }
+
+    .proj-thumb {
+      width: 100%; aspect-ratio: 16/9;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 48px; user-select: none;
+      background: var(--bg-2);
+      position: relative; overflow: hidden;
+    }
+    .proj-thumb-inner {
+      position: relative; z-index: 1;
+    }
+    /* gradient tint per card */
+    .proj-card:nth-child(1) .proj-thumb { background: linear-gradient(135deg, #edeaff 0%, #f5f0ff 100%); }
+    .proj-card:nth-child(2) .proj-thumb { background: linear-gradient(135deg, #e8f4ff 0%, #f0f8ff 100%); }
+    .proj-card:nth-child(3) .proj-thumb { background: linear-gradient(135deg, #fff0f5 0%, #fff5f8 100%); }
+
+    .proj-body { padding: var(--sp-md); }
+
+    .proj-tags {
+      display: flex; gap: var(--sp-xs); margin-bottom: var(--sp-sm);
+    }
+    .proj-tag {
+      font-size: 10px; font-weight: 500; letter-spacing: .4px;
+      color: var(--primary); background: var(--primary-light);
+      border-radius: var(--r-pill); padding: 2px 9px;
+    }
+
+    .proj-title {
+      font-size: 16px; font-weight: 600;
+      letter-spacing: -0.2px; color: var(--text-1);
+      margin-bottom: 4px;
+    }
+    .proj-desc {
+      font-size: 13px; color: var(--text-3); line-height: 1.6;
+    }
+
+    .proj-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px var(--sp-md);
+      border-top: 0.5px solid var(--border-3);
+    }
+    .proj-link { font-size: 12px; font-weight: 500; color: var(--primary); }
+    .proj-arrow { font-size: 13px; color: var(--text-3); }
+
+    /* ============================================================
+       Experience timeline
+       ============================================================ */
+    .timeline {
+      display: flex; flex-direction: column; gap: var(--sp-md);
+      margin-top: var(--sp-md); position: relative;
+    }
+    .timeline::before {
+      content: ''; position: absolute;
+      left: 18px; top: 22px; bottom: 22px;
+      width: 0.5px; background: var(--border-1);
+    }
+
+    .tl-item { display: flex; gap: var(--sp-md); }
+
+    .tl-icon {
+      width: 36px; height: 36px; flex-shrink: 0;
+      border-radius: var(--r-sm);
+      background: var(--bg-2); border: 0.5px solid var(--border-1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; position: relative; z-index: 1;
+    }
+
+    .tl-body { flex: 1; padding-top: 3px; }
+    .tl-period { font-size: 11px; color: var(--text-3); margin-bottom: 2px; }
+    .tl-role { font-size: 15px; font-weight: 600; color: var(--text-1); margin-bottom: 1px; }
+    .tl-company { font-size: 13px; color: var(--primary); font-weight: 500; margin-bottom: 6px; }
+    .tl-desc { font-size: 13px; color: var(--text-3); line-height: 1.6; }
+
+    /* ============================================================
+       Contact links (matching row cells)
+       ============================================================ */
+    .contact-list {
+      display: flex; flex-direction: column; gap: var(--sp-sm);
+      margin-top: var(--sp-md);
+    }
+
+    .contact-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--sp-md);
+      background: var(--bg-2); border-radius: var(--r-md);
+      transition: background .15s, transform .12s;
+    }
+    .contact-row:active { transform: scale(.98); }
+    .contact-row:hover { background: var(--bg-3); }
+
+    .contact-row-l { display: flex; align-items: center; gap: var(--sp-sm); }
+
+    .contact-icon {
+      width: 36px; height: 36px;
+      background: var(--primary-light); border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; flex-shrink: 0;
+    }
+
+    .contact-name { font-size: 15px; font-weight: 500; color: var(--text-1); }
+    .contact-sub { font-size: 12px; color: var(--text-3); margin-top: 1px; }
+    .contact-arrow { font-size: 13px; color: var(--text-3); }
+
+    /* ============================================================
+       Bottom Tab Bar (matching 01.07_Bottom Bar)
+       ============================================================ */
+    .bottom-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+      background: rgba(255,255,255,0.80);
+      backdrop-filter: blur(24px) saturate(1.8);
+      -webkit-backdrop-filter: blur(24px) saturate(1.8);
+      border-top: 0.5px solid var(--border-3);
+      padding: 8px 0 0;
+    }
+
+    .tab-list {
+      display: flex; justify-content: space-around;
+      list-style: none; padding: 0 var(--sp-sm);
+    }
+
+    .tab-item a {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 3px; padding: 4px 18px;
+      border-radius: var(--r-sm);
+    }
+
+    .tab-icon {
+      width: 24px; height: 24px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .tab-icon svg { width: 22px; height: 22px; fill: none; stroke: var(--text-3); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: stroke .2s; }
+    .tab-lbl { font-size: 10px; color: var(--text-3); transition: color .2s; }
+
+    .tab-item.active .tab-icon svg { stroke: var(--primary); }
+    .tab-item.active .tab-lbl { color: var(--primary); }
+
+    /* Home indicator (matching 01.11_Home Indicator) */
+    .home-indicator {
+      width: 134px; height: 5px;
+      background: rgba(0,0,0,0.18); border-radius: 100px;
+      margin: 8px auto 10px;
+    }
+
+    @media (min-width: 600px) {
+      .bottom-bar { display: none; }
+      main { padding-bottom: 0; }
+    }
+    @media (max-width: 600px) {
+      main { padding-bottom: 90px; }
+    }
+
+    /* ============================================================
+       Footer
+       ============================================================ */
+    .footer {
+      text-align: center; padding: var(--sp-xl) var(--sp-md);
+      font-size: 12px; color: var(--text-3);
+    }
+    .footer strong { color: var(--primary); font-weight: 500; }
+
+    /* ============================================================
+       Animations
+       ============================================================ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .4; transform: scale(.85); }
+    }
+
+    /* Scroll-reveal */
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity .55s ease, transform .55s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+  </style>
 </head>
 <body>
-    <!-- 导航栏 -->
-    <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container">
-            <!--<a class="navbar-brand" href="#">JocelynTong</a>-->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto" id="menu">
-                    <li class="nav-item" style="--item-index: 0;">
-                        <a class="nav-link" href="#home">首页</a>
-                    </li>
-                    <li class="nav-item" style="--item-index: 1;">
-                        <a class="nav-link" href="#works">设计系统 / 资讯</a>
-                    </li>
-                    <li class="nav-item" style="--item-index: 2;">
-                        <a class="nav-link" href="#about">关于我</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
 
-    <!-- fullPage容器 -->
-    <div id="fullpage">
-        <!-- 欢迎区 -->
-        <div class="section hero-section" data-anchor="home">
-            <div class="hero-content" data-aos="fade-up">
-                <h1 class="display-4 mb-4">Jocelyn's Portfolio</h1>
-                <!--<p class="lead mb-4">UI/UX 设计师 / 产品设计师</p>-->
-                <p class="mb-5">当我们专注于取悦他人时，我们就会停止发表坚定的意见，我们不再拥护新的想法。</p>
+  <!-- ── TOP NAV ────────────────────────────────────────── -->
+  <nav class="top-nav">
+    <div class="top-nav-logo">JT<span>.</span></div>
+    <ul class="top-nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <main>
+
+    <!-- ── HERO ──────────────────────────────────────────── -->
+    <section class="hero" id="home">
+      <div class="hero-badge">
+        <div class="badge-dot"></div>
+        Available for new projects
+      </div>
+
+      <h1 class="hero-title">
+        Hi, I'm<br>
+        <span class="hl">Jocelyn</span> Tong.
+      </h1>
+
+      <p class="hero-sub">
+        Product designer &amp; front-end developer crafting delightful, atomic-scale design systems and seamless mobile-first experiences.
+      </p>
+
+      <div class="hero-actions">
+        <a class="btn btn-solid" href="#projects">View Work</a>
+        <a class="btn btn-outline" href="#contact">Say Hello →</a>
+      </div>
+
+      <div class="hero-scroll">
+        <div class="hero-scroll-line"></div>
+        Scroll to explore
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── ABOUT ──────────────────────────────────────────── -->
+    <section class="section" id="about">
+
+      <div class="stats reveal">
+        <div class="stat-card">
+          <div class="stat-num">3+</div>
+          <div class="stat-lbl">Years exp</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">20+</div>
+          <div class="stat-lbl">Projects</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">💙</div>
+          <div class="stat-lbl">Design-driven</div>
+        </div>
+      </div>
+
+      <div class="label reveal">About Me</div>
+      <h2 class="heading reveal">Design systems<br>that actually scale.</h2>
+      <p class="body-text reveal">
+        I'm a designer who codes — or a coder who designs, depending on the day. I specialise in atomic design systems, mobile-first UI, and bridging the gap between beautiful visuals and clean implementation.
+        <br><br>
+        Currently at <strong style="color:var(--primary);">回响科技 Echo Tech</strong>, where I build products from token to template, pixel to production.
+      </p>
+
+      <div class="label reveal" style="margin-top:var(--sp-xl);">Skills</div>
+      <div class="chips reveal">
+        <span class="chip accent">UI / UX Design</span>
+        <span class="chip accent">Design Systems</span>
+        <span class="chip accent">Figma</span>
+        <span class="chip">React</span>
+        <span class="chip">TypeScript</span>
+        <span class="chip">Tailwind CSS</span>
+        <span class="chip">iOS Design</span>
+        <span class="chip">Prototyping</span>
+        <span class="chip">User Research</span>
+        <span class="chip">Framer Motion</span>
+        <span class="chip">HTML / CSS</span>
+        <span class="chip">Accessibility</span>
+      </div>
+
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── PROJECTS ───────────────────────────────────────── -->
+    <section class="section" id="projects">
+
+      <div class="label reveal">Work</div>
+      <h2 class="heading reveal">Selected<br>projects.</h2>
+
+      <div class="projects-list reveal">
+
+        <a class="proj-card" href="#">
+          <div class="proj-thumb">
+            <div class="proj-thumb-inner">💙&thinsp;🧩</div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-tags">
+              <span class="proj-tag">Design System</span>
+              <span class="proj-tag">Figma</span>
             </div>
-            <div class="scroll-indicator">
+            <div class="proj-title">原子分子组件库</div>
+            <div class="proj-desc">
+              A production-ready atomic design system built in Figma — from foundational tokens and icons right through to fully-composed page templates.
             </div>
+          </div>
+          <div class="proj-footer">
+            <span class="proj-link">View project</span>
+            <span class="proj-arrow">→</span>
+          </div>
+        </a>
+
+        <a class="proj-card" href="#">
+          <div class="proj-thumb">
+            <div class="proj-thumb-inner">📱&thinsp;✨</div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-tags">
+              <span class="proj-tag">Mobile App</span>
+              <span class="proj-tag">iOS</span>
+            </div>
+            <div class="proj-title">Echo Tech Mobile</div>
+            <div class="proj-desc">
+              iOS app design featuring fluid transitions, haptic-driven micro-interactions, and a bottom-sheet navigation system — all following Apple HIG.
+            </div>
+          </div>
+          <div class="proj-footer">
+            <span class="proj-link">View project</span>
+            <span class="proj-arrow">→</span>
+          </div>
+        </a>
+
+        <a class="proj-card" href="#">
+          <div class="proj-thumb">
+            <div class="proj-thumb-inner">🎨&thinsp;🖌️</div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-tags">
+              <span class="proj-tag">Branding</span>
+              <span class="proj-tag">Identity</span>
+            </div>
+            <div class="proj-title">Brand Identity System</div>
+            <div class="proj-desc">
+              A cohesive visual identity — logo, colour palette, typography, iconography, and motion language packaged into a ready-to-use brand guide.
+            </div>
+          </div>
+          <div class="proj-footer">
+            <span class="proj-link">View project</span>
+            <span class="proj-arrow">→</span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── EXPERIENCE ────────────────────────────────────── -->
+    <section class="section" id="experience">
+
+      <div class="label reveal">Experience</div>
+      <h2 class="heading reveal">Where I've<br>been.</h2>
+
+      <div class="timeline reveal">
+
+        <div class="tl-item">
+          <div class="tl-icon">🔵</div>
+          <div class="tl-body">
+            <div class="tl-period">2023 — Present</div>
+            <div class="tl-role">Lead Product Designer</div>
+            <div class="tl-company">回响科技 Echo Tech</div>
+            <div class="tl-desc">
+              Owning design end-to-end — strategy, system, and shipping. Built the atomic component library used across all products.
+            </div>
+          </div>
         </div>
 
-        <!-- 作品集展示 -->
-        <div class="section portfolio-section" data-anchor="works">
-            <div class="portfolio-container">
-                <div class="portfolio-header text-center">
-                    <h2 class="text-center mb-5">设计系统 / 设计资讯</h2>
-                </div>
-                <div class="portfolio-grid">
-                    <!-- 项目1 -->
-                    <div class="portfolio-item" data-aos="fade-up">
-                        <div class="portfolio-content">
-                            <div class="portfolio-image">
-                                <img src="imgs/1.png" alt="Figma入门教程">
-                                <div class="portfolio-overlay">
-                                    <div class="overlay-content">
-                                        <span class="project-category">设计技巧</span>
-                                        <h3>8 分钟入门 Figma</h3>
-                                        <a href="https://mp.weixin.qq.com/s/QtXxBOAdU-v5WNoWgCcrlA" class="btn-view-project" target="_blank" rel="noopener noreferrer">查看详情</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 项目2 -->
-                    <div class="portfolio-item" data-aos="fade-up" data-aos-delay="100">
-                        <div class="portfolio-content">
-                            <div class="portfolio-image">
-                                <img src="imgs/2.png" alt="热区规范设计">
-                                <div class="portfolio-overlay">
-                                    <div class="overlay-content">
-                                        <span class="project-category">设计技巧</span>
-                                        <h3>8 分钟搞定热区规范</h3>
-                                        <a href="https://mp.weixin.qq.com/s/weblYOC2IAz-hO5ZsPVfRw" class="btn-view-project" target="_blank" rel="noopener noreferrer">查看详情</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 项目3 -->
-                    <div class="portfolio-item" data-aos="fade-up" data-aos-delay="200">
-                        <div class="portfolio-content">
-                            <div class="portfolio-image">
-                                <img src="imgs/3.png" alt="Figma Config 2024">
-                                <div class="portfolio-overlay">
-                                    <div class="overlay-content">
-                                        <span class="project-category">设计资讯</span>
-                                        <h3>Figma Config 2024</h3>
-                                        <a href="https://mp.weixin.qq.com/s/cw3Cms5IigmP_wbJp9ghYA" class="btn-view-project" target="_blank" rel="noopener noreferrer">查看详情</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="tl-item">
+          <div class="tl-icon">🟣</div>
+          <div class="tl-body">
+            <div class="tl-period">2022 — 2023</div>
+            <div class="tl-role">UX Designer</div>
+            <div class="tl-company">Freelance</div>
+            <div class="tl-desc">
+              Worked with startups across fintech, edtech, and consumer apps — delivering iOS and web design from wireframe to handoff.
             </div>
+          </div>
         </div>
 
-        <!-- 关于我 -->
-        <div class="section about-section" data-anchor="about">
-            <div class="container">
-                <div class="about-content text-center">
-                    <h2 class="text-white mb-4">关于我</h2>
-                    <p class="text-light mb-5">产品设计</p>
-                    
-                    <div class="social-links mb-5">
-                        <a href="https://www.xiaohongshu.com/user/profile/56963a15b8c8b4043acffc08" target="_blank" class="social-link">
-                            <img src="imgs/redbook.svg" class="redbook-icon" alt="小红书">
-                        </a>
-                        <a href="https://v.douyin.com/ifENhYvs/" target="_blank" class="social-link">
-                            <i class="fab fa-tiktok"></i>
-                        </a>
-                        <a href="#" class="social-link" 
-                           data-bs-toggle="popover" 
-                           data-bs-placement="top" 
-                           data-bs-html="true"
-                           data-bs-content='<div class="text-center"><img src="imgs/wechat-qr.jpg" class="qr-code-small" alt="微信二维码"></div>'
-                           data-bs-trigger="hover">
-                            <i class="fab fa-weixin"></i>
-                        </a>
-                    </div>
-                </div>
+        <div class="tl-item">
+          <div class="tl-icon">⚪️</div>
+          <div class="tl-body">
+            <div class="tl-period">2020 — 2022</div>
+            <div class="tl-role">Visual / UI Designer</div>
+            <div class="tl-company">Design Studio</div>
+            <div class="tl-desc">
+              Started in visual design and brand identity, evolving rapidly into digital product design for mobile and web.
             </div>
+          </div>
         </div>
-    </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Swiper JS -->
-    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-    <!-- AOS JS -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <!-- fullPage JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.20/vendors/scrolloverflow.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.20/fullpage.min.js"></script>
-    <!-- Custom JS -->
-    <script src="main.js"></script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── CONTACT ────────────────────────────────────────── -->
+    <section class="section" id="contact">
+
+      <div class="label reveal">Contact</div>
+      <h2 class="heading reveal">Let's build<br>something great.</h2>
+      <p class="body-text reveal">
+        Have a project in mind, or just want to say hi? I'm always happy to chat about design, code, or creative systems.
+      </p>
+
+      <div class="contact-list reveal">
+
+        <a class="contact-row" href="mailto:348591265@qq.com">
+          <div class="contact-row-l">
+            <div class="contact-icon">📧</div>
+            <div>
+              <div class="contact-name">Email</div>
+              <div class="contact-sub">348591265@qq.com</div>
+            </div>
+          </div>
+          <div class="contact-arrow">→</div>
+        </a>
+
+        <a class="contact-row" href="#">
+          <div class="contact-row-l">
+            <div class="contact-icon">🎨</div>
+            <div>
+              <div class="contact-name">Figma Community</div>
+              <div class="contact-sub">@jocelyn</div>
+            </div>
+          </div>
+          <div class="contact-arrow">→</div>
+        </a>
+
+        <a class="contact-row" href="#">
+          <div class="contact-row-l">
+            <div class="contact-icon">💼</div>
+            <div>
+              <div class="contact-name">LinkedIn</div>
+              <div class="contact-sub">Jocelyn Tong</div>
+            </div>
+          </div>
+          <div class="contact-arrow">→</div>
+        </a>
+
+        <a class="contact-row" href="#">
+          <div class="contact-row-l">
+            <div class="contact-icon">🐦</div>
+            <div>
+              <div class="contact-name">Twitter / X</div>
+              <div class="contact-sub">@jocelyn</div>
+            </div>
+          </div>
+          <div class="contact-arrow">→</div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ── FOOTER ──────────────────────────────────────────── -->
+    <footer class="footer">
+      <strong>Jocelyn Tong</strong> &nbsp;·&nbsp; Built with 💙 &amp; 原子设计 &nbsp;·&nbsp; 2026
+    </footer>
+
+  </main>
+
+  <!-- ── BOTTOM TAB BAR (mobile) ───────────────────────── -->
+  <nav class="bottom-bar">
+    <ul class="tab-list">
+
+      <li class="tab-item active" data-section="home">
+        <a href="#home">
+          <div class="tab-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V10.5z"/><path d="M9 21V12h6v9"/></svg>
+          </div>
+          <div class="tab-lbl">Home</div>
+        </a>
+      </li>
+
+      <li class="tab-item" data-section="about">
+        <a href="#about">
+          <div class="tab-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </div>
+          <div class="tab-lbl">About</div>
+        </a>
+      </li>
+
+      <li class="tab-item" data-section="projects">
+        <a href="#projects">
+          <div class="tab-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          </div>
+          <div class="tab-lbl">Work</div>
+        </a>
+      </li>
+
+      <li class="tab-item" data-section="contact">
+        <a href="#contact">
+          <div class="tab-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div class="tab-lbl">Contact</div>
+        </a>
+      </li>
+
+    </ul>
+    <div class="home-indicator"></div>
+  </nav>
+
+  <script>
+    /* ── Scroll-reveal ── */
+    const revealEls = document.querySelectorAll('.reveal');
+    const revealObs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => revealObs.observe(el));
+
+    /* ── Active bottom tab on scroll ── */
+    const sections = document.querySelectorAll('section[id], .hero[id]');
+    const tabs = document.querySelectorAll('.tab-item');
+
+    const sectionObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const id = e.target.id;
+          tabs.forEach(t => {
+            t.classList.toggle('active', t.dataset.section === id);
+          });
+        }
+      });
+    }, { threshold: 0.45 });
+
+    sections.forEach(s => sectionObs.observe(s));
+  </script>
+
 </body>
-</html> 
+</html>
