@@ -39,12 +39,12 @@ body{
   background:var(--bg-2);
   color:var(--text-1);
   -webkit-font-smoothing:antialiased;
-  max-width:390px;
   margin:0 auto;
   min-height:100dvh;
   position:relative;
   overflow:hidden;
 }
+@media(min-width:600px){body{max-width:390px;}}
 
 /* ============================================================
    Screen system — stack of slides
@@ -224,7 +224,7 @@ body{
 
 /* FAB */
 .fab{
-  position:fixed;bottom:calc(32px + env(safe-area-inset-bottom,0px));right:calc(50% - 195px + 16px);
+  position:fixed;bottom:calc(32px + env(safe-area-inset-bottom,0px));right:16px;
   width:54px;height:54px;
   background:var(--primary);
   border-radius:var(--r-lg);
