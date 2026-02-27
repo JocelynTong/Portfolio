@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>Post 详情 — 临界</title>
+  <style>
+    /* ============================================================
+       Design Tokens — 临界 原子分子组件库 💙
+       ============================================================ */
+    :root {
+      --primary:          #7c66ff;
+      --primary-light:    rgba(124,102,255,0.08);
+      --primary-mid:      rgba(124,102,255,0.15);
+      --primary-border:   rgba(124,102,255,0.28);
+      --bg-1:             #ffffff;
+      --bg-2:             #f5f5fa;
+      --bg-3:             #ededf5;
+      --text-1:           #000000;
+      --text-2:           rgba(0,0,0,0.64);
+      --text-3:           rgba(0,0,0,0.38);
+      --border-1:         rgba(0,0,0,0.10);
+      --border-3:         rgba(0,0,0,0.05);
+      --green:            #34c47c;
+      --green-light:      rgba(52,196,124,0.10);
+      --red:              #ff4d6a;
+      --red-light:        rgba(255,77,106,0.10);
+
+      --sp-xs:  4px;
+      --sp-sm:  8px;
+      --sp-md:  16px;
+      --sp-lg:  24px;
+      --sp-xl:  32px;
+
+      --r-xs:   6px;
+      --r-sm:   8px;
+      --r-md:   12px;
+      --r-lg:   16px;
+      --r-pill: 100px;
+
+      --font: 'PingFang SC',-apple-system,'SF Pro Text','Helvetica Neue',sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    html { background: var(--bg-2); }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-1);
+      color: var(--text-1);
+      -webkit-font-smoothing: antialiased;
+      max-width: 390px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+
+    .page { padding-bottom: 80px; }
+
+    /* ============================================================
+       Nav Bar
+       ============================================================ */
+    .nav-bar {
+      position: sticky; top: 0; z-index: 100;
+      height: 52px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 var(--sp-sm);
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(20px) saturate(1.8);
+      -webkit-backdrop-filter: blur(20px) saturate(1.8);
+      border-bottom: 0.5px solid var(--border-3);
+    }
+    .nav-btn {
+      width: 36px; height: 36px;
+      border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      background: transparent; cursor: pointer;
+    }
+    .nav-btn svg { width:20px; height:20px; fill:none; stroke:var(--text-2); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+    .nav-title { font-size: 15px; font-weight: 600; }
+    .nav-right { display: flex; gap: 0; }
+
+    /* ============================================================
+       Author Row
+       ============================================================ */
+    .author-row {
+      display: flex; align-items: center; gap: var(--sp-sm);
+      padding: var(--sp-md) var(--sp-md) var(--sp-sm);
+    }
+    .author-avatar {
+      width: 44px; height: 44px; border-radius: var(--r-md);
+      background: linear-gradient(135deg,#f5f0ff,#edeaff);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; flex-shrink: 0;
+      border: 0.5px solid var(--border-1);
+    }
+    .author-info { flex: 1; }
+    .author-name {
+      font-size: 14px; font-weight: 600; color: var(--text-1);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .author-verified {
+      width: 16px; height: 16px;
+      background: var(--primary); border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .author-verified svg { width: 9px; height: 9px; fill: none; stroke: white; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .author-meta {
+      font-size: 12px; color: var(--text-3); margin-top: 2px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .author-meta-sep { color: var(--border-1); }
+    .follow-btn {
+      background: var(--primary-light);
+      border: 0.5px solid var(--primary-border);
+      color: var(--primary);
+      font-size: 13px; font-weight: 500; font-family: var(--font);
+      border-radius: var(--r-pill);
+      padding: 5px 16px; cursor: pointer;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    .follow-btn.following {
+      background: var(--bg-2);
+      border-color: var(--border-1);
+      color: var(--text-3);
+    }
+
+    /* ============================================================
+       Post Title & Body
+       ============================================================ */
+    .post-title {
+      font-size: 18px; font-weight: 700;
+      letter-spacing: -0.4px; line-height: 1.4;
+      padding: 0 var(--sp-md) var(--sp-sm);
+      color: var(--text-1);
+    }
+
+    .post-body {
+      font-size: 15px; color: var(--text-2);
+      line-height: 1.75; padding: 0 var(--sp-md) var(--sp-md);
+    }
+    .post-body .topic {
+      color: var(--primary); font-weight: 500;
+    }
+
+    /* ============================================================
+       Image Carousel
+       ============================================================ */
+    .img-carousel {
+      position: relative; overflow: hidden;
+      margin: 0 var(--sp-md) var(--sp-md);
+      border-radius: var(--r-lg);
+    }
+    .img-track {
+      display: flex; transition: transform .35s cubic-bezier(.4,0,.2,1);
+    }
+    .img-slide {
+      min-width: 100%; aspect-ratio: 1/1;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 88px; user-select: none;
+      border-radius: var(--r-lg);
+      flex-shrink: 0;
+    }
+    .img-slide:nth-child(1) { background: linear-gradient(145deg,#2a1f6e,#7c66ff); }
+    .img-slide:nth-child(2) { background: linear-gradient(145deg,#1a2f5e,#4466ff); }
+    .img-slide:nth-child(3) { background: linear-gradient(145deg,#2e1a4e,#a066ff); }
+
+    .img-dots {
+      position: absolute; bottom: var(--sp-sm); left: 50%; transform: translateX(-50%);
+      display: flex; gap: 4px;
+    }
+    .img-dot {
+      width: 5px; height: 5px; border-radius: 100px;
+      background: rgba(255,255,255,0.4); cursor: pointer;
+      transition: all .2s;
+    }
+    .img-dot.active { width: 16px; background: rgba(255,255,255,0.9); }
+
+    .img-count {
+      position: absolute; top: var(--sp-sm); right: var(--sp-sm);
+      background: rgba(0,0,0,0.45); backdrop-filter: blur(8px);
+      border-radius: var(--r-pill); padding: 3px 10px;
+      font-size: 11px; color: rgba(255,255,255,0.9); font-weight: 500;
+    }
+
+    /* ============================================================
+       TOKEN CITATION CARD  ← 核心组件
+       ============================================================ */
+    .token-cite-wrap {
+      padding: 0 var(--sp-md) var(--sp-md);
+    }
+
+    .token-cite-label {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; color: var(--text-3);
+      margin-bottom: var(--sp-xs);
+    }
+    .token-cite-label svg { width: 13px; height: 13px; fill: none; stroke: var(--text-3); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+    .token-cite-card {
+      border: 0.5px solid var(--primary-border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      background: var(--bg-1);
+      cursor: pointer;
+      transition: box-shadow .2s, transform .15s;
+      text-decoration: none; display: block; color: inherit;
+    }
+    .token-cite-card:active { transform: scale(.98); }
+    .token-cite-card:hover {
+      box-shadow: 0 4px 24px rgba(124,102,255,0.14);
+    }
+
+    /* Gradient top bar */
+    .token-cite-bar {
+      height: 3px;
+      background: linear-gradient(90deg, #7c66ff 0%, #a594ff 50%, #7c66ff 100%);
+    }
+
+    .token-cite-inner {
+      display: flex; gap: var(--sp-sm);
+      padding: var(--sp-sm) var(--sp-md);
+      align-items: center;
+    }
+
+    .token-cite-thumb {
+      width: 56px; height: 56px; flex-shrink: 0;
+      border-radius: var(--r-md);
+      background: linear-gradient(145deg,#2a1f6e,#7c66ff);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; position: relative;
+    }
+    .token-cite-thumb-badge {
+      position: absolute; bottom: -5px; right: -5px;
+      width: 18px; height: 18px;
+      background: var(--green); border-radius: 50%;
+      border: 2px solid var(--bg-1);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .token-cite-thumb-badge svg { width: 9px; height: 9px; fill: none; stroke: white; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .token-cite-info { flex: 1; min-width: 0; }
+    .token-cite-title {
+      font-size: 14px; font-weight: 600; color: var(--text-1);
+      margin-bottom: 3px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .token-cite-creator {
+      font-size: 12px; color: var(--text-3); margin-bottom: 5px;
+    }
+    .token-cite-tags { display: flex; gap: var(--sp-xs); }
+    .token-cite-tag {
+      font-size: 10px; font-weight: 500;
+      border-radius: var(--r-pill); padding: 2px 8px;
+    }
+    .token-cite-tag.cert  { background: var(--green-light);   color: var(--green); }
+    .token-cite-tag.type  { background: var(--primary-light); color: var(--primary); }
+
+    .token-cite-arrow {
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      background: var(--primary-light); border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .token-cite-arrow svg { width: 14px; height: 14px; fill: none; stroke: var(--primary); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .token-cite-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px var(--sp-md);
+      border-top: 0.5px solid var(--border-3);
+      background: var(--primary-light);
+    }
+    .token-cite-footer-left {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; color: var(--primary);
+    }
+    .token-cite-footer-left svg { width: 13px; height: 13px; fill: none; stroke: var(--primary); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .token-cite-footer-right {
+      font-size: 11px; color: var(--text-3);
+    }
+
+    /* ============================================================
+       Tags
+       ============================================================ */
+    .post-tags {
+      display: flex; flex-wrap: wrap; gap: var(--sp-xs);
+      padding: 0 var(--sp-md) var(--sp-md);
+    }
+    .post-tag {
+      font-size: 12px; color: var(--primary);
+      background: var(--primary-light);
+      border-radius: var(--r-pill); padding: 3px 12px;
+    }
+
+    /* ============================================================
+       Stats bar
+       ============================================================ */
+    .stats-bar {
+      display: flex; align-items: center;
+      padding: var(--sp-sm) var(--sp-md);
+      border-top: 0.5px solid var(--border-3);
+      gap: var(--sp-md);
+    }
+    .stat-item {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 13px; color: var(--text-3);
+      cursor: pointer;
+    }
+    .stat-item svg { width: 18px; height: 18px; fill: none; stroke: var(--text-3); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: stroke .15s; }
+    .stat-item:hover svg { stroke: var(--primary); }
+    .stat-item.liked svg { stroke: var(--red); fill: var(--red); }
+    .stat-item.liked span { color: var(--red); }
+    .stat-item.bookmarked svg { stroke: var(--primary); fill: var(--primary); }
+    .stat-spacer { flex: 1; }
+    .stat-share {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 12px; color: var(--text-3); cursor: pointer;
+    }
+    .stat-share svg { width: 16px; height: 16px; fill: none; stroke: var(--text-3); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ============================================================
+       Comments
+       ============================================================ */
+    .comments-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--sp-md) var(--sp-md) var(--sp-sm);
+      border-top: 6px solid var(--bg-2);
+    }
+    .comments-title {
+      font-size: 14px; font-weight: 600; color: var(--text-1);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .comments-count {
+      font-size: 12px; color: var(--text-3); font-weight: 400;
+    }
+    .comments-sort {
+      font-size: 12px; color: var(--text-3);
+      display: flex; align-items: center; gap: 3px;
+    }
+    .comments-sort svg { width: 14px; height: 14px; fill: none; stroke: var(--text-3); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+    .comment-item {
+      display: flex; gap: var(--sp-sm);
+      padding: var(--sp-sm) var(--sp-md);
+    }
+    .comment-avatar {
+      width: 36px; height: 36px; flex-shrink: 0;
+      border-radius: var(--r-sm);
+      background: var(--bg-2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      border: 0.5px solid var(--border-1);
+    }
+    .comment-body { flex: 1; }
+    .comment-name {
+      font-size: 12px; font-weight: 600; color: var(--text-1); margin-bottom: 2px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .comment-name-badge {
+      font-size: 10px; font-weight: 500;
+      background: var(--primary-light); color: var(--primary);
+      border-radius: var(--r-pill); padding: 1px 6px;
+    }
+    .comment-text {
+      font-size: 14px; color: var(--text-1); line-height: 1.6; margin-bottom: 4px;
+    }
+    .comment-text .mention { color: var(--primary); }
+
+    /* Token citation in comment */
+    .comment-token-ref {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--primary-light);
+      border: 0.5px solid var(--primary-border);
+      border-radius: var(--r-xs); padding: 3px 9px;
+      font-size: 12px; color: var(--primary); font-weight: 500;
+      margin-top: 4px; cursor: pointer;
+    }
+    .comment-token-ref svg { width: 12px; height: 12px; fill: none; stroke: var(--primary); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .comment-meta {
+      display: flex; align-items: center; gap: var(--sp-md);
+      margin-top: 4px;
+    }
+    .comment-time { font-size: 11px; color: var(--text-3); }
+    .comment-like {
+      display: flex; align-items: center; gap: 3px;
+      font-size: 11px; color: var(--text-3); cursor: pointer;
+    }
+    .comment-like svg { width: 13px; height: 13px; fill: none; stroke: var(--text-3); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .comment-reply { font-size: 11px; color: var(--text-3); cursor: pointer; }
+
+    .comment-divider { height: 0.5px; background: var(--border-3); margin: 0 var(--sp-md) 0 calc(36px + var(--sp-md) + var(--sp-sm)); }
+
+    /* Reply indented */
+    .comment-replies {
+      margin-left: calc(36px + var(--sp-sm));
+      padding: var(--sp-xs) var(--sp-md) 0;
+    }
+    .reply-item {
+      display: flex; gap: var(--sp-sm);
+      padding: var(--sp-xs) 0;
+      border-top: 0.5px solid var(--border-3);
+    }
+    .reply-item:first-child { border-top: none; }
+    .reply-avatar {
+      width: 24px; height: 24px; flex-shrink: 0;
+      border-radius: var(--r-xs);
+      background: var(--bg-3);
+      display: flex; align-items: center; justify-content: center; font-size: 13px;
+    }
+    .reply-body { flex: 1; }
+    .reply-name { font-size: 12px; font-weight: 600; color: var(--text-1); }
+    .reply-text { font-size: 13px; color: var(--text-2); line-height: 1.5; margin-top: 1px; }
+    .reply-text .mention { color: var(--primary); }
+    .reply-time { font-size: 10px; color: var(--text-3); margin-top: 3px; }
+
+    /* ============================================================
+       Bottom Input Bar
+       ============================================================ */
+    .bottom-bar {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 390px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px) saturate(1.8);
+      -webkit-backdrop-filter: blur(20px) saturate(1.8);
+      border-top: 0.5px solid var(--border-3);
+      padding: var(--sp-sm) var(--sp-md) 0;
+    }
+
+    .bar-row {
+      display: flex; align-items: center; gap: var(--sp-sm);
+    }
+
+    .bar-input-wrap {
+      flex: 1;
+      background: var(--bg-2);
+      border-radius: var(--r-pill);
+      display: flex; align-items: center;
+      padding: 0 var(--sp-sm) 0 var(--sp-md);
+      height: 38px;
+      border: 0.5px solid var(--border-1);
+    }
+    .bar-input {
+      flex: 1; border: none; background: transparent;
+      font-size: 14px; font-family: var(--font); color: var(--text-1);
+      outline: none;
+    }
+    .bar-input::placeholder { color: var(--text-3); }
+    .bar-emoji-btn { font-size: 18px; cursor: pointer; }
+
+    .bar-action-btn {
+      width: 38px; height: 38px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .bar-action-btn svg { width: 24px; height: 24px; fill: none; stroke: var(--text-3); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .bar-action-btn.active svg { stroke: var(--primary); }
+
+    .home-indicator {
+      width: 120px; height: 5px;
+      background: rgba(0,0,0,0.16); border-radius: 100px;
+      margin: 10px auto 10px;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── NAV ──────────────────────────────────────────── -->
+  <div class="nav-bar">
+    <div class="nav-btn">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+    <div class="nav-title">Post</div>
+    <div class="nav-right">
+      <div class="nav-btn">
+        <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="19" r="2"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </div>
+      <div class="nav-btn">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="19" r="1.5" fill="currentColor"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AUTHOR ROW ────────────────────────────────────── -->
+  <div class="author-row">
+    <div class="author-avatar">🧑‍🎨</div>
+    <div class="author-info">
+      <div class="author-name">
+        MoriSky
+        <div class="author-verified">
+          <svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
+        </div>
+      </div>
+      <div class="author-meta">
+        <span>@morisky</span>
+        <span class="author-meta-sep">·</span>
+        <span>3天前</span>
+        <span class="author-meta-sep">·</span>
+        <span>📍 上海</span>
+      </div>
+    </div>
+    <button class="follow-btn" id="follow-btn" onclick="toggleFollow(this)">+ 关注</button>
+  </div>
+
+  <!-- ── POST TITLE ────────────────────────────────────── -->
+  <div class="post-title">
+    小精灵·晴天 ver. 完整绘制过程 🧚
+  </div>
+
+  <!-- ── POST BODY ─────────────────────────────────────── -->
+  <div class="post-body">
+    最近花了两周终于画完了这只小精灵，分享一下完整的绘制过程和一些心得。
+    <br><br>
+    底稿阶段先确定了动态和姿势，精灵翅膀的透明感处理了很久，最后用叠加图层+散景模糊解决了。颜色方案选了暖黄+冷紫的互补色，想表达晴天午后那种光感。
+    <br><br>
+    <span class="topic">#原创插画</span> <span class="topic">#临界存证</span> 这次发布前我把原稿存证了，用了 Token 功能，以后有人盗图直接甩证据包 😤
+  </div>
+
+  <!-- ── IMAGE CAROUSEL ────────────────────────────────── -->
+  <div class="img-carousel" id="carousel">
+    <div class="img-track" id="img-track">
+      <div class="img-slide">🧚</div>
+      <div class="img-slide">🎨</div>
+      <div class="img-slide">✏️</div>
+    </div>
+    <div class="img-dots" id="img-dots">
+      <div class="img-dot active" onclick="goSlide(0)"></div>
+      <div class="img-dot" onclick="goSlide(1)"></div>
+      <div class="img-dot" onclick="goSlide(2)"></div>
+    </div>
+    <div class="img-count" id="img-count">1 / 3</div>
+  </div>
+
+  <!-- ── TOKEN CITATION CARD ──────────────────────────── -->
+  <div class="token-cite-wrap">
+    <div class="token-cite-label">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      本 Post 引用了以下 Token 作为作品存证背书
+    </div>
+
+    <a class="token-cite-card" href="token-detail.html">
+      <div class="token-cite-bar"></div>
+
+      <div class="token-cite-inner">
+        <div class="token-cite-thumb">
+          🧚
+          <div class="token-cite-thumb-badge">
+            <svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
+          </div>
+        </div>
+
+        <div class="token-cite-info">
+          <div class="token-cite-title">小精灵·晴天ver.</div>
+          <div class="token-cite-creator">by @MoriSky</div>
+          <div class="token-cite-tags">
+            <span class="token-cite-tag cert">✓ 已存证</span>
+            <span class="token-cite-tag type">💼 商用授权</span>
+          </div>
+        </div>
+
+        <div class="token-cite-arrow">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+
+      <div class="token-cite-footer">
+        <div class="token-cite-footer-left">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          临界区块链存证 · LJ-2024-0315-7C66FF
+        </div>
+        <div class="token-cite-footer-right">查看房产证 →</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- ── TAGS ──────────────────────────────────────────── -->
+  <div class="post-tags">
+    <span class="post-tag">#原创插画</span>
+    <span class="post-tag">#数字绘画</span>
+    <span class="post-tag">#临界存证</span>
+    <span class="post-tag">#设计</span>
+    <span class="post-tag">#IP创作</span>
+  </div>
+
+  <!-- ── STATS BAR ─────────────────────────────────────── -->
+  <div class="stats-bar">
+    <div class="stat-item" id="like-btn" onclick="toggleLike(this)">
+      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span id="like-count">2.4k</span>
+    </div>
+    <div class="stat-item">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span>138</span>
+    </div>
+    <div class="stat-item" id="save-btn" onclick="toggleSave(this)">
+      <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <span>856</span>
+    </div>
+    <div class="stat-spacer"></div>
+    <div class="stat-share">
+      <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="19" r="2"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      分享
+    </div>
+  </div>
+
+  <!-- ── COMMENTS ──────────────────────────────────────── -->
+  <div class="comments-header">
+    <div class="comments-title">
+      评论
+      <span class="comments-count">138条</span>
+    </div>
+    <div class="comments-sort">
+      最热
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+  </div>
+
+  <!-- Comment 1 -->
+  <div class="comment-item">
+    <div class="comment-avatar">🐰</div>
+    <div class="comment-body">
+      <div class="comment-name">
+        Jocelyn
+        <span class="comment-name-badge">作者粉丝</span>
+      </div>
+      <div class="comment-text">
+        存证这个功能真的太必要了！之前我的稿子被盗了好几次，都没有办法，现在有 Token 直接发证据包，盗图者直接破防 🤣
+      </div>
+      <div style="display:flex;">
+        <div class="comment-token-ref">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          我的 Token · 月兔·春分ver.
+        </div>
+      </div>
+      <div class="comment-meta">
+        <span class="comment-time">1天前</span>
+        <span class="comment-like">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l7.78 7.78 7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          128
+        </span>
+        <span class="comment-reply">回复</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="comment-replies">
+    <div class="reply-item">
+      <div class="reply-avatar">🧑‍🎨</div>
+      <div class="reply-body">
+        <div class="reply-name">MoriSky <span style="color:var(--primary);font-size:10px;font-weight:500;">作者</span></div>
+        <div class="reply-text"><span class="mention">@Jocelyn</span> 对！而且 Token 还能记录所有操作日志，赖都赖不掉 💙</div>
+        <div class="reply-time">23小时前</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="comment-divider"></div>
+
+  <!-- Comment 2 -->
+  <div class="comment-item">
+    <div class="comment-avatar">🦊</div>
+    <div class="comment-body">
+      <div class="comment-name">NanaDesign</div>
+      <div class="comment-text">
+        透明翅膀的处理太绝了，能出个教程吗？用的是什么笔刷？
+      </div>
+      <div class="comment-meta">
+        <span class="comment-time">2天前</span>
+        <span class="comment-like">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l7.78 7.78 7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          64
+        </span>
+        <span class="comment-reply">回复</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="comment-divider"></div>
+
+  <!-- Comment 3 -->
+  <div class="comment-item">
+    <div class="comment-avatar">🌊</div>
+    <div class="comment-body">
+      <div class="comment-name">Leo设计碎碎念</div>
+      <div class="comment-text">
+        已在年度最爱 Post 里引用了这个 Token，存证+引用的闭环设计真的很聪明，给临界产品经理点个赞
+      </div>
+      <div class="comment-meta">
+        <span class="comment-time">3天前</span>
+        <span class="comment-like">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l7.78 7.78 7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          41
+        </span>
+        <span class="comment-reply">回复</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:var(--sp-lg)"></div>
+
+</div><!-- /page -->
+
+<!-- ── BOTTOM INPUT BAR ───────────────────────────── -->
+<div class="bottom-bar">
+  <div class="bar-row">
+    <div class="bar-input-wrap">
+      <input class="bar-input" type="text" placeholder="说点什么…" />
+      <div class="bar-emoji-btn">🙂</div>
+    </div>
+    <div class="bar-action-btn" title="引用 Token">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <div class="bar-action-btn active" title="点赞">
+      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l7.78 7.78 7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    </div>
+  </div>
+  <div class="home-indicator"></div>
+</div>
+
+<script>
+  /* Image carousel */
+  let cur = 0;
+  const track = document.getElementById('img-track');
+  const dots  = document.querySelectorAll('.img-dot');
+  const count = document.getElementById('img-count');
+
+  function goSlide(n) {
+    cur = n;
+    track.style.transform = `translateX(-${cur * 100}%)`;
+    dots.forEach((d,i) => d.classList.toggle('active', i === cur));
+    count.textContent = `${cur+1} / ${dots.length}`;
+  }
+
+  /* Touch swipe */
+  let startX = 0;
+  const carousel = document.getElementById('carousel');
+  carousel.addEventListener('touchstart', e => startX = e.touches[0].clientX, {passive:true});
+  carousel.addEventListener('touchend', e => {
+    const dx = startX - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 40) goSlide(Math.max(0, Math.min(dots.length-1, cur + (dx>0?1:-1))));
+  });
+
+  /* Like toggle */
+  let liked = false;
+  function toggleLike(el) {
+    liked = !liked;
+    el.classList.toggle('liked', liked);
+    const c = document.getElementById('like-count');
+    c.textContent = liked ? '2.4k+1' : '2.4k';
+  }
+
+  /* Save toggle */
+  let saved = false;
+  function toggleSave(el) {
+    saved = !saved;
+    el.classList.toggle('bookmarked', saved);
+  }
+
+  /* Follow toggle */
+  function toggleFollow(btn) {
+    const following = btn.classList.toggle('following');
+    btn.textContent = following ? '已关注' : '+ 关注';
+  }
+</script>
+</body>
+</html>
