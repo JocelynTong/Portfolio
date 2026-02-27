@@ -252,6 +252,7 @@ body{
   border-radius:var(--r-lg);
   overflow:hidden;
   background:var(--bg-1);
+  display:block; color:inherit; text-decoration:none;
   cursor:pointer;
   transition:box-shadow .2s,transform .15s;
 }
@@ -858,7 +859,7 @@ body{
       </div>
     </div>
     <div class="profile-stats">
-      <div class="ps-item"><div class="ps-num">48</div><div class="ps-lbl">作品</div></div>
+      <div class="ps-item"><div class="ps-num">386</div><div class="ps-lbl">关注</div></div>
       <div class="ps-item"><div class="ps-num">2.6k</div><div class="ps-lbl">粉丝</div></div>
       <div class="ps-item"><div class="ps-num">12</div><div class="ps-lbl" style="color:var(--green);">💙已存证</div></div>
     </div>
@@ -937,7 +938,7 @@ body{
       <div class="token-list">
 
         <!-- Token 1 — 已存证 商用授权 挂单中 -->
-        <div class="token-card">
+        <a class="token-card" href="token-detail.html">
           <div class="token-card-strip"></div>
           <div class="token-card-inner">
             <div class="token-thumb" style="background:linear-gradient(145deg,#2a1f6e,#7c66ff);">
@@ -972,10 +973,10 @@ body{
             </div>
             <div class="token-date">2024-03-15</div>
           </div>
-        </div>
+        </a>
 
         <!-- Token 2 — 已存证 无料 -->
-        <div class="token-card">
+        <a class="token-card" href="token-detail.html">
           <div class="token-card-strip"></div>
           <div class="token-card-inner">
             <div class="token-thumb" style="background:linear-gradient(145deg,#3d1a4e,#9944cc);">
@@ -1009,10 +1010,10 @@ body{
             </div>
             <div class="token-date">2024-06-20</div>
           </div>
-        </div>
+        </a>
 
         <!-- Token 3 — 已存证 买断 -->
-        <div class="token-card">
+        <a class="token-card" href="token-detail.html">
           <div class="token-card-strip"></div>
           <div class="token-card-inner">
             <div class="token-thumb" style="background:linear-gradient(145deg,#0e2e1a,#20a060);">
@@ -1046,7 +1047,7 @@ body{
             </div>
             <div class="token-date">2024-12-28</div>
           </div>
-        </div>
+        </a>
 
         <!-- CTA: 尚未存证的帖子 -->
         <div style="background:var(--orange-light);border:0.5px solid rgba(255,140,66,.28);border-radius:var(--r-md);padding:var(--sp-md);display:flex;align-items:center;gap:var(--sp-sm);">
