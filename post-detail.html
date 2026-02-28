@@ -576,7 +576,7 @@
   </div>
 
   <!-- ── TOKEN CITATION CARD ──────────────────────────── -->
-  <div class="token-cite-wrap">
+  <div class="token-cite-wrap" id="token-cite-wrap">
     <div class="token-cite-label">
       <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       本 Post 引用了以下 Token 作为作品存证背书
@@ -764,10 +764,22 @@
 </div>
 
 <script>
-  /* 存证引导 Snackbar — 1.8s 后自动弹出 */
-  setTimeout(() => {
-    document.getElementById('cert-snackbar').classList.add('show');
-  }, 1800);
+  /* ── 存证状态判断 ──────────────────────────────────────
+     ?certified=1  → 已存证：显示 token 引用卡，不弹 snackbar
+     (无参数)      → 未存证：弹 snackbar 引导，隐藏 token 卡
+  ──────────────────────────────────────────────────────── */
+  const isCertified = location.search.includes('certified=1');
+
+  if (isCertified) {
+    /* 已存证：显示 token 卡片，不弹 snackbar */
+    document.getElementById('token-cite-wrap').style.display = '';
+  } else {
+    /* 未存证：隐藏 token 卡片，1.8s 后弹引导 snackbar */
+    document.getElementById('token-cite-wrap').style.display = 'none';
+    setTimeout(() => {
+      document.getElementById('cert-snackbar').classList.add('show');
+    }, 1800);
+  }
 
   /* Image carousel */
   let cur = 0;
