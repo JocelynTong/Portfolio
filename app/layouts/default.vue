@@ -1,0 +1,130 @@
+<script setup lang="ts">
+// 全局样式 token（复用 dangoui 设计系统）
+const tokens = {
+  colors: {
+    primary: '#7c66ff',
+    'primary-light': 'rgba(124,102,255,0.08)',
+    'primary-mid': 'rgba(124,102,255,0.16)',
+    'primary-border': 'rgba(124,102,255,0.32)',
+    'bg-1': '#ffffff',
+    'bg-2': '#f5f5fa',
+    'text-1': '#000000',
+    'text-2': 'rgba(0,0,0,0.64)',
+    'text-3': 'rgba(0,0,0,0.40)',
+    'border-1': 'rgba(0,0,0,0.12)',
+  },
+  spacing: { xs: '4px', sm: '8px', md: '16px', lg: '24px', xl: '32px', '2xl': '48px' },
+  radius: { sm: '8px', md: '12px', lg: '16px', xl: '24px' },
+}
+</script>
+
+<template>
+  <div class="layout">
+    <nav class="nav">
+      <NuxtLink to="/" class="nav-logo">PP.</NuxtLink>
+      <div class="nav-links">
+        <NuxtLink to="/blog">博客</NuxtLink>
+        <NuxtLink to="/links">外链</NuxtLink>
+      </div>
+    </nav>
+
+    <main class="main">
+      <slot />
+    </main>
+
+    <footer class="footer">
+      <p>© 2025 童佩佩 · 11年产品设计</p>
+    </footer>
+  </div>
+</template>
+
+<style>
+/* Design Tokens */
+:root {
+  --primary: #7c66ff;
+  --primary-light: rgba(124,102,255,0.08);
+  --primary-mid: rgba(124,102,255,0.16);
+  --bg-1: #ffffff;
+  --bg-2: #f5f5fa;
+  --text-1: #000000;
+  --text-2: rgba(0,0,0,0.64);
+  --text-3: rgba(0,0,0,0.40);
+  --border-1: rgba(0,0,0,0.12);
+  --sp-xs: 4px;
+  --sp-sm: 8px;
+  --sp-md: 16px;
+  --sp-lg: 24px;
+  --sp-xl: 32px;
+  --sp-2xl: 48px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --font-body: 16px;
+  --font-h2: 32px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'PingFang SC', -apple-system, sans-serif;
+  background: var(--bg-1);
+  color: var(--text-1);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Nav */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-md) var(--sp-xl);
+  border-bottom: 1px solid var(--border-1);
+}
+
+.nav-logo {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.nav-links {
+  display: flex;
+  gap: var(--sp-lg);
+}
+
+.nav-links a {
+  color: var(--text-2);
+  transition: color 0.2s;
+}
+
+.nav-links a:hover,
+.nav-links a.router-link-active {
+  color: var(--primary);
+}
+
+/* Main */
+.main {
+  flex: 1;
+  padding: var(--sp-2xl) var(--sp-xl);
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Footer */
+.footer {
+  padding: var(--sp-lg);
+  text-align: center;
+  color: var(--text-3);
+  font-size: 14px;
+  border-top: 1px solid var(--border-1);
+}
+</style>
