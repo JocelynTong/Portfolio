@@ -3,11 +3,12 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
-  // GitHub Pages 静态导出
+  // GitHub Pages 静态导出到 docs 目录
   ssr: true,
 
-  // 路由基础路径（GitHub Pages 需要）
-  app: {
-    baseURL: process.env.NODE_ENV === 'production' ? '/Portfolio/' : '/',
+  nitro: {
+    prerender: {
+      routes: ['/'],
+    },
   },
 })

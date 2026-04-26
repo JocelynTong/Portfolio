@@ -9,12 +9,9 @@ useSeoMeta({ title: '博客 · 童佩佩' })
     <p class="page-desc">产品设计思考与技术实践</p>
 
     <div class="blog-grid">
-      <!-- 示例文章卡片 -->
-      <NuxtLink to="/blog/first-post" class="blog-card">
-        <div class="blog-date">2025.04.20</div>
-        <h2>设计系统的价值</h2>
-        <p>如何用设计系统提升团队协作效率</p>
-      </NuxtLink>
+      <div class="empty-state">
+        作品整理中，即将上线...
+      </div>
     </div>
   </div>
 </template>
@@ -71,5 +68,13 @@ useSeoMeta({ title: '博客 · 童佩佩' })
 .blog-card p {
   color: var(--text-2, rgba(0,0,0,0.64));
   font-size: 14px;
+}
+
+.empty-state {
+  padding: var(--sp-2xl);
+  text-align: center;
+  color: var(--text-3);
+  background: var(--bg-2);
+  border-radius: var(--r-md);
 }
 </style>
