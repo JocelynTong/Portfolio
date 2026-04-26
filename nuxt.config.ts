@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
-  // GitHub Pages 静态导出到 docs 目录
+  // 静态导出
   ssr: true,
 
   nitro: {

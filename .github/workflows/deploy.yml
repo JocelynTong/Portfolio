@@ -19,7 +19,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -38,24 +37,14 @@ jobs:
       - name: Generate static site
         run: pnpm generate
 
-      - name: Copy to docs
+      - name: Prepare docs
         run: |
           mkdir -p docs
           cp -r .output/public/* docs/
+          rm -rf docs/_nuxt/builds
 
-      - name: Commit and push
-        run: |
-          git config --local user.name "GitHub Actions"
-          git config --local user.email "actions@github.com"
-          git add docs/
-          git diff --staged --quiet || git commit -m "chore: update generated site $(date +'%Y-%m-%d %H:%M')"
-          git push origin HEAD:refs/heads/main --force
-
-      - name: Trigger Pages build
-        run: |
-          sleep 3
-          curl -s -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/pages/builds \
-            -d '{"source":{"branch":"main","path":"/docs"}}'
+      - name: Commit to main
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update generated site"
+          file_pattern: docs/*
