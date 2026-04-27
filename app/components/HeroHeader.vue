@@ -3,7 +3,6 @@ const loaded = ref(false)
 const currentSlide = ref(0)
 const progress = ref(0)
 const activeSection = ref('home')
-const isScrolled = ref(false)
 const isDarkSection = ref(true)
 const images = ['/avatar_hq.jpg', '/avatar2_hq.jpg']
 const INTERVAL = 3500
@@ -17,7 +16,6 @@ const navItems = [
 ]
 
 let timer: ReturnType<typeof setInterval> | null = null
-let observer: IntersectionObserver | null = null
 
 const goToSlide = (i: number) => {
   currentSlide.value = i
@@ -40,29 +38,31 @@ const scrollToSection = (id: string) => {
   const el = document.getElementById(id)
   if (el) {
     el.scrollIntoView({ behavior: 'smooth' })
+    // Immediately update active section
+    activeSection.value = id
+    isDarkSection.value = id === 'home'
   }
 }
 
-const setupScrollSpy = () => {
-  if (observer) observer.disconnect()
+const updateActiveSection = () => {
+  const scrollY = window.scrollY
+  const windowHeight = window.innerHeight
 
-  observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          activeSection.value = entry.target.id
-          // Hero section has dark bg, others have light bg
-          isDarkSection.value = entry.target.id === 'home'
-        }
-      })
-    },
-    { threshold: 0.3, rootMargin: '-80px 0px -50% 0px' }
-  )
+  // Find which section is currently most visible
+  for (const item of navItems) {
+    const el = document.getElementById(item.id)
+    if (el) {
+      const rect = el.getBoundingClientRect()
+      const topInView = rect.top <= windowHeight * 0.5
+      const bottomInView = rect.bottom >= windowHeight * 0.3
 
-  navItems.forEach(({ id }) => {
-    const el = document.getElementById(id)
-    if (el) observer!.observe(el)
-  })
+      if (topInView && bottomInView) {
+        activeSection.value = item.id
+        isDarkSection.value = item.id === 'home'
+        break
+      }
+    }
+  }
 }
 
 onMounted(() => {
@@ -71,28 +71,18 @@ onMounted(() => {
   }, 300)
   startTimer()
 
-  // Scroll listener for nav style
-  const handleScroll = () => {
-    isScrolled.value = window.scrollY > 50
-  }
-  window.addEventListener('scroll', handleScroll, { passive: true })
-
-  // Setup scroll spy after a tick to ensure all sections exist
-  setTimeout(setupScrollSpy, 100)
-
-  onUnmounted(() => {
-    window.removeEventListener('scroll', handleScroll)
-    if (observer) observer.disconnect()
-  })
+  window.addEventListener('scroll', updateActiveSection, { passive: true })
+  updateActiveSection()
 })
 
 onUnmounted(() => {
   if (timer) clearInterval(timer)
+  window.removeEventListener('scroll', updateActiveSection)
 })
 </script>
 
 <template>
-  <section class="hero">
+  <section id="home" class="hero">
     <!-- 全屏背景照片轮播 -->
     <div class="hero-bg" :class="{ loaded }">
       <img
@@ -106,7 +96,7 @@ onUnmounted(() => {
     </div>
 
     <!-- 顶部导航 -->
-    <nav class="hero-nav" :class="{ scrolled: isScrolled, 'is-dark': !isDarkSection }">
+    <nav class="hero-nav" :class="{ 'nav-light': !isDarkSection }">
       <span class="nav-logo">JocelynTong</span>
       <div class="nav-links">
         <a
@@ -220,20 +210,20 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 28px 8vw;
-  transition: background 0.3s, padding 0.3s;
+  transition: background 0.3s, color 0.3s;
   background: transparent;
+  color: white;
 }
 
-.hero-nav.scrolled {
-  background: rgba(0,0,0,0.85);
+.hero-nav.nav-light {
+  background: rgba(255,255,255,0.95);
   backdrop-filter: blur(10px);
-  padding: 16px 8vw;
+  color: #000;
 }
 
 .nav-logo {
   font-size: 18px;
   font-weight: 700;
-  color: white;
   letter-spacing: -0.02em;
 }
 
@@ -244,20 +234,24 @@ onUnmounted(() => {
 
 .nav-links a {
   font-size: 13px;
-  color: rgba(255,255,255,0.9);
   letter-spacing: 0.05em;
   transition: color 0.2s, opacity 0.2s;
   cursor: pointer;
+  color: rgba(255,255,255,0.9);
+}
+
+.hero-nav.nav-light .nav-links a {
+  color: rgba(0,0,0,0.85);
 }
 
 .nav-links a:hover {
-  color: white;
+  color: inherit;
+  opacity: 1;
 }
 
 .nav-links a.active {
-  color: white;
   font-weight: 600;
-  border-bottom: 1px solid white;
+  border-bottom: 1px solid currentColor;
 }
 
 /* 右侧文字 */

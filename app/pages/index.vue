@@ -8,9 +8,6 @@ useSeoMeta({
 <template>
   <HeroHeader />
 
-  <!-- 首页 (hero) -->
-  <section id="home"></section>
-
   <!-- 关于我 -->
   <section id="about" class="about">
     <h2 class="section-title">关于我</h2>
@@ -279,6 +276,7 @@ useSeoMeta({
 .notes {
   padding: 120px 8vw;
   background: #fff;
+  min-height: 50vh;
 }
 
 .notes-intro {
