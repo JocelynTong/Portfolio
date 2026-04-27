@@ -48,7 +48,7 @@ useSeoMeta({
   </section>
 
   <!-- 作品集 -->
-  <section class="portfolio">
+  <section id="portfolio" class="portfolio">
     <h2 class="section-title">作品集</h2>
     <div class="projects-grid">
       <article class="project-card">
@@ -83,7 +83,7 @@ useSeoMeta({
   </section>
 
   <!-- 文章 -->
-  <section class="notes">
+  <section id="notes" class="notes">
     <h2 class="section-title">文章</h2>
     <div class="notes-intro">
       <p>看见</p>
@@ -98,7 +98,7 @@ useSeoMeta({
   </section>
 
   <!-- 联系 -->
-  <section class="contact">
+  <section id="contact" class="contact">
     <h2 class="contact-title">很高兴能与你共事</h2>
     <div class="contact-info">
       <div class="contact-item">

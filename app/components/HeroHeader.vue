@@ -3,6 +3,8 @@ const loaded = ref(false)
 const currentSlide = ref(0)
 const progress = ref(0)
 const activeSection = ref('home')
+const isScrolled = ref(false)
+const isDarkSection = ref(true)
 const images = ['/avatar_hq.jpg', '/avatar2_hq.jpg']
 const INTERVAL = 3500
 
@@ -15,6 +17,7 @@ const navItems = [
 ]
 
 let timer: ReturnType<typeof setInterval> | null = null
+let observer: IntersectionObserver | null = null
 
 const goToSlide = (i: number) => {
   currentSlide.value = i
@@ -40,29 +43,46 @@ const scrollToSection = (id: string) => {
   }
 }
 
+const setupScrollSpy = () => {
+  if (observer) observer.disconnect()
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          activeSection.value = entry.target.id
+          // Hero section has dark bg, others have light bg
+          isDarkSection.value = entry.target.id === 'home'
+        }
+      })
+    },
+    { threshold: 0.3, rootMargin: '-80px 0px -50% 0px' }
+  )
+
+  navItems.forEach(({ id }) => {
+    const el = document.getElementById(id)
+    if (el) observer!.observe(el)
+  })
+}
+
 onMounted(() => {
   setTimeout(() => {
     loaded.value = true
   }, 300)
   startTimer()
 
-  // Scroll spy
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          activeSection.value = entry.target.id
-        }
-      })
-    },
-    { threshold: 0.3 }
-  )
+  // Scroll listener for nav style
+  const handleScroll = () => {
+    isScrolled.value = window.scrollY > 50
+  }
+  window.addEventListener('scroll', handleScroll, { passive: true })
 
-  nextTick(() => {
-    navItems.forEach(({ id }) => {
-      const el = document.getElementById(id)
-      if (el) observer.observe(el)
-    })
+  // Setup scroll spy after a tick to ensure all sections exist
+  setTimeout(setupScrollSpy, 100)
+
+  onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll)
+    if (observer) observer.disconnect()
   })
 })
 
@@ -86,7 +106,7 @@ onUnmounted(() => {
     </div>
 
     <!-- 顶部导航 -->
-    <nav class="hero-nav">
+    <nav class="hero-nav" :class="{ scrolled: isScrolled, 'is-dark': !isDarkSection }">
       <span class="nav-logo">JocelynTong</span>
       <div class="nav-links">
         <a
@@ -191,15 +211,23 @@ onUnmounted(() => {
 
 /* 导航 */
 .hero-nav {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 10;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 28px 8vw;
+  transition: background 0.3s, padding 0.3s;
+  background: transparent;
+}
+
+.hero-nav.scrolled {
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(10px);
+  padding: 16px 8vw;
 }
 
 .nav-logo {
@@ -216,9 +244,10 @@ onUnmounted(() => {
 
 .nav-links a {
   font-size: 13px;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255,255,255,0.9);
   letter-spacing: 0.05em;
-  transition: color 0.2s;
+  transition: color 0.2s, opacity 0.2s;
+  cursor: pointer;
 }
 
 .nav-links a:hover {
@@ -227,7 +256,8 @@ onUnmounted(() => {
 
 .nav-links a.active {
   color: white;
-  opacity: 1;
+  font-weight: 600;
+  border-bottom: 1px solid white;
 }
 
 /* 右侧文字 */
