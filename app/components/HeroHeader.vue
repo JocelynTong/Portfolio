@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const emit = defineEmits<{ navigate: [id: string] }>()
+
 const loaded = ref(false)
 const currentSlide = ref(0)
 const progress = ref(0)
@@ -6,6 +8,7 @@ const activeSection = ref('home')
 const isDarkSection = ref(true)
 const images = ['/avatar_hq.jpg', '/avatar2_hq.jpg']
 const INTERVAL = 4000
+const resetProgress = ref(false)
 
 const navItems = [
   { id: 'home', label: '首页' },
@@ -27,29 +30,20 @@ const startTimer = () => {
   progress.value = 0
   const start = Date.now()
   timer = setInterval(() => {
-    progress.value = ((Date.now() - start) % INTERVAL) / INTERVAL * 100
-    if (progress.value >= 99) {
+    const elapsed = (Date.now() - start) % INTERVAL
+    progress.value = elapsed / INTERVAL * 100
+
+    if (elapsed >= INTERVAL - 50) {
+      // 切换到下一张，禁用过渡重置
+      resetProgress.value = true
       currentSlide.value = (currentSlide.value + 1) % images.length
       progress.value = 0
+      // 下一帧恢复过渡
+      requestAnimationFrame(() => {
+        resetProgress.value = false
+      })
     }
   }, 50)
-}
-
-const replayAnimation = (id: string) => {
-  const section = document.getElementById(id)
-  if (!section) return
-  const revealEls = Array.from(section.querySelectorAll('.reveal'))
-  if (revealEls.length === 0) return
-
-  // 移除 in-view
-  revealEls.forEach((el) => el.classList.remove('in-view'))
-
-  // 触发重排
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      revealEls.forEach((el) => el.classList.add('in-view'))
-    })
-  })
 }
 
 const scrollToSection = (id: string) => {
@@ -57,7 +51,7 @@ const scrollToSection = (id: string) => {
   if (el) {
     activeSection.value = id
     isDarkSection.value = id === 'home'
-    replayAnimation(id)
+    emit('navigate', id)
     el.scrollIntoView({ behavior: 'smooth' })
   }
 }
@@ -167,9 +161,14 @@ onUnmounted(() => {
             >
               <div class="slide-bar-bg"></div>
               <div
+                v-if="currentSlide === i"
                 class="slide-bar-fill"
-                :class="{ active: currentSlide === i }"
-                :style="currentSlide === i ? { width: progress + '%' } : {}"
+                :class="{ 'no-transition': resetProgress }"
+                :style="{ width: progress + '%' }"
+              ></div>
+              <div
+                v-else
+                class="slide-bar-fill"
               ></div>
             </div>
           </div>
@@ -394,6 +393,10 @@ onUnmounted(() => {
   width: 0%;
   background: var(--color-white);
   transition: width 0.1s linear;
+}
+
+.slide-bar-fill.no-transition {
+  transition: none;
 }
 
 /* 向下滚动 */

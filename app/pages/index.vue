@@ -4,11 +4,32 @@ useSeoMeta({
   description: '11年产品设计，专注通用解决方案',
 })
 
+// 标记是否正在手动重播动画
+const isReplaying = ref(false)
+
+const replayAnimation = (id: string) => {
+  const section = document.getElementById(id)
+  if (!section) return
+  const revealEls = Array.from(section.querySelectorAll('.reveal'))
+  if (revealEls.length === 0) return
+
+  isReplaying.value = true
+
+  // 移除 in-view
+  revealEls.forEach((el) => el.classList.remove('in-view'))
+
+  // 等滚动完成后再触发动画
+  setTimeout(() => {
+    revealEls.forEach((el) => el.classList.add('in-view'))
+    isReplaying.value = false
+  }, 700)
+}
+
 onMounted(() => {
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && !isReplaying.value) {
           entry.target.classList.add('in-view')
         }
       })
@@ -23,7 +44,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <HeroHeader />
+  <HeroHeader @navigate="replayAnimation" />
 
   <!-- 关于我 -->
   <section id="about" class="section">
