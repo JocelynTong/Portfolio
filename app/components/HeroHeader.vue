@@ -16,6 +16,7 @@ const navItems = [
 ]
 
 let timer: ReturnType<typeof setInterval> | null = null
+let observer: IntersectionObserver | null = null
 
 const goToSlide = (i: number) => {
   currentSlide.value = i
@@ -34,32 +35,30 @@ const startTimer = () => {
   }, 50)
 }
 
+const replayAnimation = (id: string) => {
+  const section = document.getElementById(id)
+  if (!section) return
+  const revealEls = Array.from(section.querySelectorAll('.reveal'))
+  if (revealEls.length === 0) return
+
+  // 移除 in-view
+  revealEls.forEach((el) => el.classList.remove('in-view'))
+
+  // 触发重排
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      revealEls.forEach((el) => el.classList.add('in-view'))
+    })
+  })
+}
+
 const scrollToSection = (id: string) => {
   const el = document.getElementById(id)
   if (el) {
-    el.scrollIntoView({ behavior: 'smooth' })
     activeSection.value = id
     isDarkSection.value = id === 'home'
-  }
-}
-
-const handleScroll = () => {
-  const scrollY = window.scrollY
-  const heroHeight = window.innerHeight
-
-  // Each section is 100vh, so active section = floor(scrollY / heroHeight) + 1 (skip hero)
-  const sectionIndex = Math.floor(scrollY / heroHeight)
-
-  if (sectionIndex === 0) {
-    isDarkSection.value = true
-    activeSection.value = 'home'
-  } else {
-    isDarkSection.value = false
-    const targetIndex = sectionIndex - 1
-    const targetItem = navItems[targetIndex]
-    if (targetItem) {
-      activeSection.value = targetItem.id
-    }
+    replayAnimation(id)
+    el.scrollIntoView({ behavior: 'smooth' })
   }
 }
 
@@ -69,13 +68,52 @@ onMounted(() => {
   }, 300)
   startTimer()
 
-  document.addEventListener('scroll', handleScroll, { passive: true })
-  handleScroll()
+  // 使用 IntersectionObserver 检测当前可见 section
+  observer = new IntersectionObserver(
+    (entries) => {
+      // 找到最上面的可见 section
+      const visible = entries
+        .filter(e => e.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+
+      if (visible.length > 0) {
+        const topSection = visible[0]
+        const id = topSection.target.id
+        if (id && id !== activeSection.value) {
+          activeSection.value = id
+          isDarkSection.value = id === 'home'
+        }
+      }
+    },
+    {
+      root: null,
+      rootMargin: '-40% 0px -40% 0px',
+      threshold: 0,
+    }
+  )
+
+  // 观察所有 section
+  navItems.forEach(item => {
+    const el = document.getElementById(item.id)
+    if (el) observer?.observe(el)
+  })
+
+  // 初始检测
+  const initialSection = navItems.find(item => {
+    const el = document.getElementById(item.id)
+    if (!el) return false
+    const rect = el.getBoundingClientRect()
+    return rect.top >= -window.innerHeight * 0.4 && rect.top < window.innerHeight * 0.4
+  })
+  if (initialSection) {
+    activeSection.value = initialSection.id
+    isDarkSection.value = initialSection.id === 'home'
+  }
 })
 
 onUnmounted(() => {
   if (timer) clearInterval(timer)
-  document.removeEventListener('scroll', handleScroll)
+  if (observer) observer.disconnect()
 })
 </script>
 

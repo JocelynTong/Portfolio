@@ -3,6 +3,23 @@ useSeoMeta({
   title: '童佩佩 · 产品设计师',
   description: '11年产品设计，专注通用解决方案',
 })
+
+onMounted(() => {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view')
+        }
+      })
+    },
+    { threshold: 0.1, rootMargin: '0px 0px -60px 0px' }
+  )
+
+  document.querySelectorAll('.reveal').forEach((el) => {
+    observer.observe(el)
+  })
+})
 </script>
 
 <template>
@@ -11,14 +28,14 @@ useSeoMeta({
   <!-- 关于我 -->
   <section id="about" class="section">
     <div class="container">
-      <h2 class="section-title">关于我</h2>
+      <h2 class="section-title reveal">关于我</h2>
 
-      <div class="intro-block">
+      <div class="intro-block reveal">
         <span class="tag">INFP</span>
         <p class="intro-text">诚挚、求真、创新不止、关注客户、敢于负责</p>
       </div>
 
-      <div class="stats-row">
+      <div class="stats-row reveal">
         <div class="stat">
           <span class="stat-num">4</span>
           <span class="stat-label">工作年份</span>
@@ -29,7 +46,7 @@ useSeoMeta({
         </div>
       </div>
 
-      <div class="timeline">
+      <div class="timeline reveal">
         <div class="timeline-item">
           <span class="timeline-date">10.2021 — 至今</span>
           <h4 class="timeline-role">产品设计 — 回响科技</h4>
@@ -52,31 +69,31 @@ useSeoMeta({
   <!-- 作品集 -->
   <section id="portfolio" class="section section-dark">
     <div class="container">
-      <h2 class="section-title">作品集</h2>
+      <h2 class="section-title reveal">作品集</h2>
 
       <div class="projects-grid">
-        <article class="project-card">
+        <article class="project-card reveal">
           <div class="project-img" style="background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);"></div>
           <div class="project-info">
             <h3 class="project-title">千岛 SaaS Design System</h3>
             <p class="project-meta">APP · 2021 — 2025</p>
           </div>
         </article>
-        <article class="project-card">
+        <article class="project-card reveal">
           <div class="project-img" style="background: linear-gradient(135deg, #2a2a2a 0%, #444 100%);"></div>
           <div class="project-info">
             <h3 class="project-title">Mexxis Design System</h3>
             <p class="project-meta">Web · 2023</p>
           </div>
         </article>
-        <article class="project-card">
+        <article class="project-card reveal">
           <div class="project-img" style="background: linear-gradient(135deg, #3a3a3a 0%, #555 100%);"></div>
           <div class="project-info">
             <h3 class="project-title">Tricamarum UI Kit</h3>
             <p class="project-meta">Mobile · 2024</p>
           </div>
         </article>
-        <article class="project-card">
+        <article class="project-card reveal">
           <div class="project-img" style="background: linear-gradient(135deg, #4a4a4a 0%, #666 100%);"></div>
           <div class="project-info">
             <h3 class="project-title">Cammel Design</h3>
@@ -90,15 +107,15 @@ useSeoMeta({
   <!-- 文章 -->
   <section id="notes" class="section">
     <div class="container">
-      <h2 class="section-title">文章</h2>
+      <h2 class="section-title reveal">文章</h2>
 
-      <div class="notes-intro">
+      <div class="notes-intro reveal">
         <p class="notes-quote">看见</p>
         <p class="notes-quote-sub">哪怕再不起眼，再渺小，哪怕看到的人很少</p>
         <p class="notes-quote-sub">只要看到了，就可能是机会</p>
       </div>
 
-      <div class="social-links">
+      <div class="social-links reveal">
         <NuxtLink to="/links" class="social-link">公众号</NuxtLink>
         <NuxtLink to="/links" class="social-link">小红书</NuxtLink>
         <NuxtLink to="/links" class="social-link">知乎</NuxtLink>
@@ -109,18 +126,18 @@ useSeoMeta({
   <!-- 联系 -->
   <section id="contact" class="section section-dark">
     <div class="container">
-      <h2 class="section-title-large">很高兴能与你共事</h2>
+      <h2 class="section-title-large reveal">很高兴能与你共事</h2>
 
       <div class="contact-grid">
-        <div class="contact-item">
+        <div class="contact-item reveal">
           <span class="contact-label">微信</span>
           <span class="contact-value">Jocelyn_0319</span>
         </div>
-        <div class="contact-item">
+        <div class="contact-item reveal">
           <span class="contact-label">坐标</span>
           <span class="contact-value">上海，中国</span>
         </div>
-        <div class="contact-item">
+        <div class="contact-item reveal">
           <span class="contact-label">经验</span>
           <span class="contact-value">产品设计</span>
         </div>
@@ -168,6 +185,7 @@ useSeoMeta({
   font-weight: var(--font-semibold);
   letter-spacing: var(--tracking-tight);
   margin-bottom: var(--space-16);
+  text-align: center;
 }
 
 /* 关于我 */
@@ -425,5 +443,18 @@ useSeoMeta({
   .contact-grid {
     gap: var(--space-10);
   }
+}
+
+/* 滚动淡入动画 */
+.reveal {
+  opacity: 0;
+  transform: translateY(60px);
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>
