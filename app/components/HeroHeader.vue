@@ -2,8 +2,17 @@
 const loaded = ref(false)
 const currentSlide = ref(0)
 const progress = ref(0)
+const activeSection = ref('home')
 const images = ['/avatar_hq.jpg', '/avatar2_hq.jpg']
 const INTERVAL = 3500
+
+const navItems = [
+  { id: 'home', label: '首页' },
+  { id: 'about', label: '关于我' },
+  { id: 'portfolio', label: '作品集' },
+  { id: 'notes', label: '笔记集' },
+  { id: 'contact', label: '联系我' },
+]
 
 let timer: ReturnType<typeof setInterval> | null = null
 
@@ -24,11 +33,37 @@ const startTimer = () => {
   }, 50)
 }
 
+const scrollToSection = (id: string) => {
+  const el = document.getElementById(id)
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth' })
+  }
+}
+
 onMounted(() => {
   setTimeout(() => {
     loaded.value = true
   }, 300)
   startTimer()
+
+  // Scroll spy
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          activeSection.value = entry.target.id
+        }
+      })
+    },
+    { threshold: 0.3 }
+  )
+
+  nextTick(() => {
+    navItems.forEach(({ id }) => {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
+    })
+  })
 })
 
 onUnmounted(() => {
@@ -54,8 +89,15 @@ onUnmounted(() => {
     <nav class="hero-nav">
       <span class="nav-logo">JocelynTong</span>
       <div class="nav-links">
-        <NuxtLink to="/blog">作品</NuxtLink>
-        <NuxtLink to="/links">外链</NuxtLink>
+        <a
+          v-for="item in navItems"
+          :key="item.id"
+          :href="'#' + item.id"
+          :class="{ active: activeSection === item.id }"
+          @click.prevent="scrollToSection(item.id)"
+        >
+          {{ item.label }}
+        </a>
       </div>
     </nav>
 
@@ -181,6 +223,11 @@ onUnmounted(() => {
 
 .nav-links a:hover {
   color: white;
+}
+
+.nav-links a.active {
+  color: white;
+  opacity: 1;
 }
 
 /* 右侧文字 */
