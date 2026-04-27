@@ -1,194 +1,375 @@
 <script setup lang="ts">
-// 动态自我介绍打字机效果
-const tagline = '一切热爱，来自通用解决方案的驱动力'
-const displayedText = ref('')
-const typing = ref(true)
+const loaded = ref(false)
+const currentSlide = ref(0)
+const progress = ref(0)
+const images = ['/avatar_hq.jpg', '/avatar2_hq.jpg']
+const INTERVAL = 3500
 
-// 呼吸动画状态
-const breathing = ref(false)
+let timer: ReturnType<typeof setInterval> | null = null
+
+const goToSlide = (i: number) => {
+  currentSlide.value = i
+  progress.value = 0
+}
+
+const startTimer = () => {
+  progress.value = 0
+  const start = Date.now()
+  timer = setInterval(() => {
+    progress.value = ((Date.now() - start) % INTERVAL) / INTERVAL * 100
+    if (progress.value >= 99) {
+      currentSlide.value = (currentSlide.value + 1) % images.length
+      progress.value = 0
+    }
+  }, 50)
+}
 
 onMounted(() => {
-  // 启动打字机
-  let i = 0
-  const type = () => {
-    if (i <= tagline.length) {
-      displayedText.value = tagline.slice(0, i)
-      i++
-      setTimeout(type, 80)
-    } else {
-      typing.value = false
-    }
-  }
-  type()
-
-  // 延迟启动呼吸动画
   setTimeout(() => {
-    breathing.value = true
-  }, 500)
+    loaded.value = true
+  }, 300)
+  startTimer()
+})
+
+onUnmounted(() => {
+  if (timer) clearInterval(timer)
 })
 </script>
 
 <template>
-  <header class="hero-header">
-    <!-- 头像区域 -->
-    <div class="avatar-wrapper">
-      <div class="avatar-ring" :class="{ breathing }"></div>
-      <div class="avatar-glow" :class="{ breathing }"></div>
+  <section class="hero">
+    <!-- 全屏背景照片轮播 -->
+    <div class="hero-bg" :class="{ loaded }">
       <img
-        src="/avatar.jpg"
-        alt="童佩佩"
-        class="avatar-img"
-        :class="{ breathing }"
+        v-for="(img, i) in images"
+        :key="img"
+        :src="img"
+        :class="['slide-img', { active: currentSlide === i }]"
+        alt=""
       />
+      <div class="hero-overlay"></div>
     </div>
 
-    <!-- 简介区域 -->
-    <div class="intro-area">
-      <h1 class="name">童佩佩</h1>
-      <p class="role">11年 · 产品设计</p>
-      <p class="tagline">
-        <span class="typing-text">{{ displayedText }}</span>
-        <span class="cursor" :class="{ hidden: !typing }">|</span>
-      </p>
+    <!-- 顶部导航 -->
+    <nav class="hero-nav">
+      <span class="nav-logo">JocelynTong</span>
+      <div class="nav-links">
+        <NuxtLink to="/blog">作品</NuxtLink>
+        <NuxtLink to="/links">外链</NuxtLink>
+      </div>
+    </nav>
+
+    <!-- 右侧文字 -->
+    <div class="hero-content" :class="{ loaded }">
+      <div class="hero-text" :class="{ loaded }">
+        <p class="hero-label">产品设计 · 11年</p>
+        <div class="hero-name-wrap">
+          <h1 class="hero-name">
+            <span class="name-line1">一切热爱</span><span class="name-line2">来自通用解决方案的驱动力</span>
+          </h1>
+        </div>
+        <!-- 横条进度指示器 -->
+        <div class="slide-indicator">
+          <div class="slide-bars">
+            <div
+              v-for="(img, i) in images"
+              :key="i"
+              class="slide-bar-wrap"
+              @click="goToSlide(i)"
+            >
+              <div class="slide-bar-bg"></div>
+              <div
+                class="slide-bar-fill"
+                :class="{ active: currentSlide === i }"
+                :style="currentSlide === i ? { width: progress + '%' } : {}"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </header>
+
+    <!-- 向下滚动 -->
+    <div class="scroll-hint-center">
+      <span>向下滚动</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
 </template>
 
 <style scoped>
-.hero-header {
+.hero {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 全屏背景 */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.slide-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.slide-img.active {
+  opacity: 1;
+}
+
+.hero-bg.loaded .slide-img.active {
+  animation: slow-zoom 8s ease-out forwards;
+}
+
+@keyframes slow-zoom {
+  from { transform: scale(1.05); }
+  to { transform: scale(1); }
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.3) 0%,
+    rgba(0,0,0,0.1) 40%,
+    rgba(0,0,0,0.4) 100%
+  );
+}
+
+/* 导航 */
+.hero-nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 8vw;
+}
+
+.nav-logo {
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.02em;
+}
+
+.nav-links {
+  display: flex;
+  gap: 40px;
+}
+
+.nav-links a {
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover {
+  color: white;
+}
+
+/* 右侧文字 */
+.hero-content {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 8vw;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 48px;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
+}
+
+.hero-content.loaded {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.hero-text {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: flex-end;
+}
+
+.hero-name-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.hero-label {
+  font-size: clamp(11px, 1.2vw, 13px);
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 500;
+  text-align: right;
+}
+
+.hero-name {
+  font-size: clamp(36px, 6.5vw, 80px);
+  font-weight: 400;
+  line-height: 1;
+  color: white;
+  text-shadow: 0 4px 32px rgba(0,0,0,0.5);
+  text-align: right;
+}
+
+.name-line1 {
+  font-size: clamp(40px, 7vw, 88px);
+  font-weight: 600;
+  display: block;
+  line-height: 1.1;
+}
+
+.name-line2 {
+  font-size: clamp(18px, 3vw, 42px);
+  font-weight: 500;
+  opacity: 0.85;
+  display: block;
+  line-height: 2;
+}
+
+/* 横条进度 */
+.slide-indicator {
+  width: 100%;
+  opacity: 0;
+  transition: opacity 0.8s ease 0.3s;
+}
+
+.hero-text.loaded .slide-indicator {
+  opacity: 1;
+}
+
+.slide-bars {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.slide-bar-wrap {
+  position: relative;
+  height: 2px;
+  border-radius: 1px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.slide-bar-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.3);
+}
+
+.slide-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background: white;
+}
+
+.slide-bar-fill.active {
+  background: white;
+}
+
+/* 向下滚动 */
+.scroll-hint-center {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--sp-xl, 32px);
-  padding: var(--sp-2xl, 48px) var(--sp-md, 16px);
-  text-align: center;
+  gap: 8px;
+  z-index: 10;
 }
 
-/* 头像 */
-.avatar-wrapper {
-  position: relative;
-  width: 160px;
-  height: 160px;
+.scroll-hint-center span {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
 }
 
-.avatar-ring {
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  background: conic-gradient(
-    from 0deg,
-    var(--primary, #7c66ff) 0%,
-    var(--primary-light, rgba(124,102,255,0.3)) 25%,
-    var(--primary, #7c66ff) 50%,
-    var(--primary-light, rgba(124,102,255,0.3)) 75%,
-    var(--primary, #7c66ff) 100%
-  );
-  opacity: 0;
-  transition: opacity 0.5s ease;
+.scroll-arrow {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+  animation: scroll-pulse 2s ease-in-out infinite;
 }
 
-.avatar-ring.breathing {
-  opacity: 1;
-  animation: ring-rotate 8s linear infinite;
+@keyframes scroll-pulse {
+  0%, 100% { opacity: 0.5; transform: scaleY(1); }
+  50% { opacity: 1; transform: scaleY(1.1); }
 }
 
-.avatar-glow {
-  position: absolute;
-  inset: -20px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(124, 102, 255, 0.15) 0%,
-    transparent 70%
-  );
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
-.avatar-glow.breathing {
-  opacity: 1;
-  animation: glow-pulse 4s ease-in-out infinite;
-}
-
-.avatar-img {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0.5s ease, transform 0.3s ease;
-}
-
-.avatar-img.breathing {
-  opacity: 1;
-  animation: breathing 4s ease-in-out infinite;
-}
-
-/* 简介 */
-.intro-area {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-sm, 8px);
-}
-
-.name {
-  font-size: var(--font-h2, 32px);
-  font-weight: 600;
-  color: var(--text-1, #000);
-}
-
-.role {
-  font-size: var(--font-body, 16px);
-  color: var(--text-2, rgba(0,0,0,0.64));
-}
-
-.tagline {
-  font-size: var(--font-body, 16px);
-  color: var(--primary, #7c66ff);
-  font-family: var(--font-mono, monospace);
-  min-height: 1.5em;
-}
-
-.typing-text {
-  display: inline;
-}
-
-.cursor {
-  display: inline-block;
-  margin-left: 2px;
-  animation: blink 1s step-end infinite;
-}
-
-.cursor.hidden {
-  opacity: 0;
-}
-
-/* 动画 */
-@keyframes ring-rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes glow-pulse {
-  0%, 100% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.1); opacity: 0.8; }
-}
-
-@keyframes breathing {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(124, 102, 255, 0.4);
+/* 响应式 */
+@media (max-width: 768px) {
+  .hero-nav {
+    padding: 20px 6vw;
   }
-  50% {
-    transform: scale(1.02);
-    box-shadow: 0 0 30px 10px rgba(124, 102, 255, 0.2);
-  }
-}
 
-@keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
+  .hero-content {
+    top: auto;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    padding: 0 6vw 15vh;
+    gap: 24px;
+    align-items: center;
+    transform: translateY(20px);
+  }
+
+  .hero-content.loaded {
+    transform: translateY(0);
+  }
+
+  .hero-label,
+  .hero-name {
+    text-align: center;
+  }
+
+  .name-line1,
+  .name-line2 {
+    text-align: center;
+  }
+
+  .nav-links {
+    gap: 24px;
+  }
+
+  .hero-bg img {
+    object-position: center 10%;
+  }
+
+  .slide-bars {
+    align-items: center;
+  }
 }
 </style>
