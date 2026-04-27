@@ -145,6 +145,7 @@ useSeoMeta({
 .section {
   padding: var(--section-padding-y) 0;
   background: var(--bg-primary);
+  min-height: 100vh;
 }
 
 .section-dark {

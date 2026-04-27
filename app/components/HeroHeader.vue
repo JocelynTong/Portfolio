@@ -43,21 +43,22 @@ const scrollToSection = (id: string) => {
   }
 }
 
-const updateActiveSection = () => {
-  const windowHeight = window.innerHeight
+const handleScroll = () => {
+  const scrollY = window.scrollY
+  const heroHeight = window.innerHeight
 
-  for (const item of navItems) {
-    const el = document.getElementById(item.id)
-    if (el) {
-      const rect = el.getBoundingClientRect()
-      const topInView = rect.top <= windowHeight * 0.5
-      const bottomInView = rect.bottom >= windowHeight * 0.3
+  // Each section is 100vh, so active section = floor(scrollY / heroHeight) + 1 (skip hero)
+  const sectionIndex = Math.floor(scrollY / heroHeight)
 
-      if (topInView && bottomInView) {
-        activeSection.value = item.id
-        isDarkSection.value = item.id === 'home'
-        break
-      }
+  if (sectionIndex === 0) {
+    isDarkSection.value = true
+    activeSection.value = 'home'
+  } else {
+    isDarkSection.value = false
+    const targetIndex = sectionIndex - 1
+    const targetItem = navItems[targetIndex]
+    if (targetItem) {
+      activeSection.value = targetItem.id
     }
   }
 }
@@ -68,13 +69,13 @@ onMounted(() => {
   }, 300)
   startTimer()
 
-  window.addEventListener('scroll', updateActiveSection, { passive: true })
-  updateActiveSection()
+  document.addEventListener('scroll', handleScroll, { passive: true })
+  handleScroll()
 })
 
 onUnmounted(() => {
   if (timer) clearInterval(timer)
-  window.removeEventListener('scroll', updateActiveSection)
+  document.removeEventListener('scroll', handleScroll)
 })
 </script>
 
@@ -93,7 +94,7 @@ onUnmounted(() => {
     </div>
 
     <!-- 顶部导航 -->
-    <nav class="hero-nav" :class="{ 'nav-light': !isDarkSection }">
+    <nav class="hero-nav" :class="{ 'nav-light': !isDarkSection }" :style="{ background: !isDarkSection ? 'rgba(255,255,255,0.95)' : 'transparent' }">
       <span class="nav-logo">JocelynTong</span>
       <div class="nav-links">
         <a
