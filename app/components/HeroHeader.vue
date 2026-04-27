@@ -5,7 +5,7 @@ const progress = ref(0)
 const activeSection = ref('home')
 const isDarkSection = ref(true)
 const images = ['/avatar_hq.jpg', '/avatar2_hq.jpg']
-const INTERVAL = 3500
+const INTERVAL = 4000
 
 const navItems = [
   { id: 'home', label: '首页' },
@@ -38,17 +38,14 @@ const scrollToSection = (id: string) => {
   const el = document.getElementById(id)
   if (el) {
     el.scrollIntoView({ behavior: 'smooth' })
-    // Immediately update active section
     activeSection.value = id
     isDarkSection.value = id === 'home'
   }
 }
 
 const updateActiveSection = () => {
-  const scrollY = window.scrollY
   const windowHeight = window.innerHeight
 
-  // Find which section is currently most visible
   for (const item of navItems) {
     const el = document.getElementById(item.id)
     if (el) {
@@ -111,20 +108,20 @@ onUnmounted(() => {
       </div>
     </nav>
 
-    <!-- 右侧文字 -->
+    <!-- 中央文字 -->
     <div class="hero-content" :class="{ loaded }">
       <div class="hero-text" :class="{ loaded }">
         <p class="hero-label">产品设计 · 11年</p>
-        <div class="hero-name-wrap">
-          <h1 class="hero-name">
-            <span class="name-line1">一切热爱</span><span class="name-line2">来自通用解决方案的驱动力</span>
-          </h1>
-        </div>
+        <h1 class="hero-name">
+          <span class="name-line1">一切热爱</span>
+          <span class="name-line2">来自通用解决方案的驱动力</span>
+        </h1>
+
         <!-- 横条进度指示器 -->
         <div class="slide-indicator">
           <div class="slide-bars">
             <div
-              v-for="(img, i) in images"
+              v-for="(_, i) in images"
               :key="i"
               class="slide-bar-wrap"
               @click="goToSlide(i)"
@@ -142,7 +139,7 @@ onUnmounted(() => {
     </div>
 
     <!-- 向下滚动 -->
-    <div class="scroll-hint-center">
+    <div class="scroll-hint">
       <span>向下滚动</span>
       <div class="scroll-arrow"></div>
     </div>
@@ -150,11 +147,13 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* Hero 全屏 */
 .hero {
   position: relative;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  background: var(--color-black);
 }
 
 /* 全屏背景 */
@@ -172,7 +171,7 @@ onUnmounted(() => {
   object-fit: cover;
   object-position: center center;
   opacity: 0;
-  transition: opacity 1.2s ease;
+  transition: opacity 1.5s var(--ease-out-expo);
 }
 
 .slide-img.active {
@@ -180,7 +179,7 @@ onUnmounted(() => {
 }
 
 .hero-bg.loaded .slide-img.active {
-  animation: slow-zoom 8s ease-out forwards;
+  animation: slow-zoom 8s var(--ease-out-expo) forwards;
 }
 
 @keyframes slow-zoom {
@@ -193,9 +192,9 @@ onUnmounted(() => {
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0,0,0,0.3) 0%,
-    rgba(0,0,0,0.1) 40%,
-    rgba(0,0,0,0.4) 100%
+    rgba(0,0,0,0.4) 0%,
+    rgba(0,0,0,0.15) 50%,
+    rgba(0,0,0,0.5) 100%
   );
 }
 
@@ -205,129 +204,123 @@ onUnmounted(() => {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: var(--z-fixed);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 28px 8vw;
-  transition: background 0.3s, color 0.3s;
+  padding: var(--space-8) var(--page-padding-x);
+  transition: background var(--duration-slow) var(--ease-out-expo),
+              color var(--duration-slow) var(--ease-out-expo);
   background: transparent;
-  color: white;
+  color: var(--color-white);
 }
 
 .hero-nav.nav-light {
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(10px);
-  color: #000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  color: var(--color-black);
 }
 
 .nav-logo {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  letter-spacing: var(--tracking-tight);
+  text-transform: uppercase;
 }
 
 .nav-links {
   display: flex;
-  gap: 40px;
+  gap: var(--space-10);
 }
 
 .nav-links a {
-  font-size: 13px;
-  letter-spacing: 0.05em;
-  transition: color 0.2s, opacity 0.2s;
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
   cursor: pointer;
-  color: rgba(255,255,255,0.9);
-}
-
-.hero-nav.nav-light .nav-links a {
-  color: rgba(0,0,0,0.85);
+  transition: opacity var(--duration-fast) ease;
+  color: inherit;
+  opacity: 0.7;
 }
 
 .nav-links a:hover {
-  color: inherit;
   opacity: 1;
 }
 
 .nav-links a.active {
-  font-weight: 600;
-  border-bottom: 1px solid currentColor;
+  opacity: 1;
+  font-weight: var(--font-semibold);
 }
 
-/* 右侧文字 */
+.nav-links a.active::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  margin-top: 2px;
+}
+
+/* 中央文字 */
 .hero-content {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 8vw;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 10;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 48px;
+  text-align: center;
+  color: var(--color-white);
   opacity: 0;
-  transform: translateX(20px);
-  transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
+  transition: opacity var(--duration-slower) var(--ease-out-expo);
 }
 
 .hero-content.loaded {
   opacity: 1;
-  transform: translateX(0);
 }
 
 .hero-text {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  align-items: flex-end;
-}
-
-.hero-name-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  align-items: flex-end;
+  align-items: center;
+  gap: var(--space-8);
 }
 
 .hero-label {
-  font-size: clamp(11px, 1.2vw, 13px);
-  color: rgba(255,255,255,0.7);
-  letter-spacing: 0.2em;
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
-  font-weight: 500;
-  text-align: right;
+  opacity: 0.6;
 }
 
 .hero-name {
-  font-size: clamp(36px, 6.5vw, 80px);
-  font-weight: 400;
-  line-height: 1;
-  color: white;
-  text-shadow: 0 4px 32px rgba(0,0,0,0.5);
-  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  font-weight: var(--font-normal);
+  line-height: var(--leading-tight);
 }
 
 .name-line1 {
-  font-size: clamp(40px, 7vw, 88px);
-  font-weight: 600;
-  display: block;
-  line-height: 1.1;
+  font-size: clamp(48px, 10vw, 120px);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-tight);
 }
 
 .name-line2 {
-  font-size: clamp(18px, 3vw, 42px);
-  font-weight: 500;
-  opacity: 0.85;
-  display: block;
-  line-height: 2;
+  font-size: clamp(14px, 2.5vw, 24px);
+  font-weight: var(--font-normal);
+  letter-spacing: var(--tracking-normal);
+  opacity: 0.7;
 }
 
 /* 横条进度 */
 .slide-indicator {
   width: 100%;
+  margin-top: var(--space-8);
   opacity: 0;
-  transition: opacity 0.8s ease 0.3s;
+  transition: opacity var(--duration-slow) var(--ease-out-expo) 0.5s;
 }
 
 .hero-text.loaded .slide-indicator {
@@ -336,23 +329,22 @@ onUnmounted(() => {
 
 .slide-bars {
   display: flex;
-  flex-direction: row;
-  gap: 8px;
-  cursor: pointer;
+  gap: var(--space-2);
+  justify-content: center;
 }
 
 .slide-bar-wrap {
   position: relative;
+  width: 48px;
   height: 2px;
-  border-radius: 1px;
   overflow: hidden;
-  flex: 1;
+  cursor: pointer;
 }
 
 .slide-bar-bg {
   position: absolute;
   inset: 0;
-  background: rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .slide-bar-fill {
@@ -361,30 +353,27 @@ onUnmounted(() => {
   left: 0;
   height: 100%;
   width: 0%;
-  background: white;
-}
-
-.slide-bar-fill.active {
-  background: white;
+  background: var(--color-white);
+  transition: width 0.1s linear;
 }
 
 /* 向下滚动 */
-.scroll-hint-center {
+.scroll-hint {
   position: absolute;
-  bottom: 40px;
+  bottom: var(--space-12);
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-3);
   z-index: 10;
 }
 
-.scroll-hint-center span {
-  font-size: 11px;
-  color: rgba(255,255,255,0.5);
-  letter-spacing: 0.15em;
+.scroll-hint span {
+  font-size: var(--text-xs);
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
 }
 
@@ -392,55 +381,38 @@ onUnmounted(() => {
   width: 1px;
   height: 48px;
   background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
-  animation: scroll-pulse 2s ease-in-out infinite;
+  animation: scroll-pulse 2s var(--ease-in-out) infinite;
 }
 
 @keyframes scroll-pulse {
-  0%, 100% { opacity: 0.5; transform: scaleY(1); }
-  50% { opacity: 1; transform: scaleY(1.1); }
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 
 /* 响应式 */
 @media (max-width: 768px) {
   .hero-nav {
-    padding: 20px 6vw;
-  }
-
-  .hero-content {
-    top: auto;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    padding: 0 6vw 15vh;
-    gap: 24px;
-    align-items: center;
-    transform: translateY(20px);
-  }
-
-  .hero-content.loaded {
-    transform: translateY(0);
-  }
-
-  .hero-label,
-  .hero-name {
-    text-align: center;
-  }
-
-  .name-line1,
-  .name-line2 {
-    text-align: center;
+    padding: var(--space-6) 6vw;
   }
 
   .nav-links {
-    gap: 24px;
+    gap: var(--space-6);
   }
 
-  .hero-bg img {
-    object-position: center 10%;
+  .nav-links a {
+    font-size: 10px;
   }
 
-  .slide-bars {
-    align-items: center;
+  .hero-content {
+    width: 90vw;
+  }
+
+  .name-line1 {
+    font-size: clamp(36px, 12vw, 64px);
+  }
+
+  .name-line2 {
+    font-size: clamp(12px, 3vw, 16px);
   }
 }
 </style>
